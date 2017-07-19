@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="RogueLike:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/RogueLike_jar</output-path>
+    <root id="archive" name="RogueLike.jar">
+      <element id="module-output" name="RogueLike" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../asciiPanel.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
