@@ -8,7 +8,8 @@ import RogueLikeTut.screens.Screen;
 import RogueLikeTut.screens.StartScreen;
 
 public class ApplicationMain extends JFrame implements KeyListener {
-    private static final long serialVersionUID = 1060623638149583738L;
+
+    private static final long serialVersionUID = -4978082929122180476L;
 
     private AsciiPanel terminal;
     private Screen screen;
