@@ -4,7 +4,7 @@ import javax.swing.JFrame;
 import asciiPanel.AsciiPanel;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import RogueLikeTut.screens.Screen;
+import RogueLikeTut.screens.AsciiScreen;
 import RogueLikeTut.screens.StartScreen;
 
 public class ApplicationMain extends JFrame implements KeyListener {
@@ -12,14 +12,14 @@ public class ApplicationMain extends JFrame implements KeyListener {
     private static final long serialVersionUID = -4978082929122180476L;
 
     private AsciiPanel terminal;
-    private Screen screen;
+    private AsciiScreen asciiScreen;
 
     public ApplicationMain(){
         super();
         terminal = new AsciiPanel();
         add(terminal);
         pack();
-        screen = new StartScreen();
+        asciiScreen = new StartScreen();
         addKeyListener(this);
         repaint();
     }
@@ -27,13 +27,13 @@ public class ApplicationMain extends JFrame implements KeyListener {
     @Override
     public void repaint(){
         terminal.clear();
-        screen.displayOutput(terminal);
+        asciiScreen.displayOutput(terminal);
         super.repaint();
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        screen = screen.respondToUserInput(e);
+        asciiScreen = asciiScreen.respondToUserInput(e);
         repaint();
     }
 

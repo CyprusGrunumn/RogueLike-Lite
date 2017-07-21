@@ -23,7 +23,7 @@ public class DropScreen extends InventoryBasedScreen {
     }
 
     @Override
-    protected Screen use(Item item) {
+    protected AsciiScreen use(Item item) {
         player.drop(item);
         return null;
     }

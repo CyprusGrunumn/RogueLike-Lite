@@ -1,10 +1,11 @@
 package RogueLikeTut.screens;
 
 import java.awt.event.KeyEvent;
-import asciiPanel.AsciiPanel;
 
+/**
+ * Created by Cyprus on 7/20/2017.
+ */
 public interface Screen {
-    public void displayOutput(AsciiPanel terminal);
-
     public Screen respondToUserInput(KeyEvent key);
+
 }

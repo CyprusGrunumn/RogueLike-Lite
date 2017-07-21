@@ -8,14 +8,14 @@ import java.util.List;
 import RogueLikeTut.*;
 import asciiPanel.AsciiPanel;
 
-public class PlayScreen implements Screen {
+public class PlayScreen implements AsciiScreen {
     private World world;
     private Creature player;
     private int screenWidth;
     private int screenHeight;
     private List<String> messages;
     private FieldOfView fov;
-    private Screen subscreen;
+    private AsciiScreen subscreen;
 
     //setup
     public PlayScreen() {
@@ -124,7 +124,7 @@ public class PlayScreen implements Screen {
     }
 
     @Override
-    public Screen respondToUserInput(KeyEvent key) {
+    public AsciiScreen respondToUserInput(KeyEvent key) {
         if (subscreen != null) {
             subscreen = subscreen.respondToUserInput(key);
         } else {
@@ -170,7 +170,7 @@ public class PlayScreen implements Screen {
         return player.z == 0 && world.tile(player.x, player.y, player.z) == Tile.STAIRS_UP;
     }
 
-    private Screen userExits(){
+    private AsciiScreen userExits(){
         for (Item item : player.inventory().getItems()){
             if (item != null && item.name().equals("teddy bear"))
                 return new WinScreen();
