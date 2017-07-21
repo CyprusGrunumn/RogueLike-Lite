@@ -15,7 +15,7 @@ public class PlayScreen implements AsciiScreen {
     private int screenHeight;
     private List<String> messages;
     private FieldOfView fov;
-    private AsciiScreen subscreen;
+    private Screen subscreen;
 
     //setup
     public PlayScreen() {
@@ -74,18 +74,23 @@ public class PlayScreen implements AsciiScreen {
     }
 
     @Override
-    public void displayOutput(AsciiPanel terminal) {
+    public void displayOutput(Renderer renderer) {
         int left = getScrollX();
         int top = getScrollY();
+        AsciiPanel terminal = renderer.terminal();
 
         displayTiles(terminal, left, top);
         displayMessages(terminal, messages);
 
         String stats = String.format(" %3d/%3d hp %8s", player.hp(), player.maxHp(), hunger());
-        terminal.write(stats, 1, 23);
+        renderer.terminal().write(stats, 1, 23);
 
-        if (subscreen != null)
-            subscreen.displayOutput(terminal);
+        if (subscreen != null) {
+            subscreen.displayOutput(renderer);
+            terminal.setVisible(true);
+        } else {
+            terminal.setVisible(false);
+        }
     }
 
     private String hunger(){
@@ -157,8 +162,9 @@ public class PlayScreen implements AsciiScreen {
             }
         }
 
-        if (subscreen == null)
+        if (subscreen == null){
             world.update();
+        }
 
         if (player.hp() < 1)
             return new LoseScreen();

@@ -1,11 +1,14 @@
 package RogueLikeTut.screens;
 
 import java.awt.event.KeyEvent;
+
+import RogueLikeTut.Renderer;
 import asciiPanel.AsciiPanel;
 
 public class LoseScreen implements AsciiScreen {
 
-    public void displayOutput(AsciiPanel terminal) {
+    public void displayOutput(Renderer renderer) {
+        AsciiPanel terminal = renderer.terminal();
         terminal.write("You Lose.", 1, 1);
         terminal.writeCenter("-- press [enter] to restart --", 22);
     }

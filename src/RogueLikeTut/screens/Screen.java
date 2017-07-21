@@ -1,5 +1,7 @@
 package RogueLikeTut.screens;
 
+import RogueLikeTut.Renderer;
+
 import java.awt.event.KeyEvent;
 
 /**
@@ -7,5 +9,5 @@ import java.awt.event.KeyEvent;
  */
 public interface Screen {
     public Screen respondToUserInput(KeyEvent key);
-
+    public void displayOutput(Renderer renderer);
 }

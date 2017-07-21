@@ -1,39 +1,55 @@
 package RogueLikeTut;
 
-import javax.swing.JFrame;
+import javax.swing.*;
+
+import RogueLikeTut.screens.Screen;
 import asciiPanel.AsciiPanel;
+
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import RogueLikeTut.screens.AsciiScreen;
+
 import RogueLikeTut.screens.StartScreen;
 
 public class ApplicationMain extends JFrame implements KeyListener {
 
+
     private static final long serialVersionUID = -4978082929122180476L;
 
-    private AsciiPanel terminal;
-    private AsciiScreen asciiScreen;
+    private Screen screen;
+    private Renderer renderer;
 
     public ApplicationMain(){
         super();
-        terminal = new AsciiPanel();
+        AsciiPanel terminal = new AsciiPanel();
+        JPanel canvas = new JPanel();
+        renderer = new Renderer(terminal, canvas);
+        OverlayLayout layout = new OverlayLayout(this.getContentPane());
+        this.getContentPane().setLayout(layout);
+        setupCanvas(canvas);
         add(terminal);
+        add(canvas);
         pack();
-        asciiScreen = new StartScreen();
+        screen = new StartScreen();
         addKeyListener(this);
         repaint();
     }
 
+    public void setupCanvas(JPanel canvas){
+        canvas.setPreferredSize(renderer.terminal().getPreferredSize());
+        canvas.setBackground(Color.blue);
+    }
+
     @Override
     public void repaint(){
-        terminal.clear();
-        asciiScreen.displayOutput(terminal);
+        renderer.terminal().clear();
+        screen.displayOutput(renderer);
         super.repaint();
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        asciiScreen = asciiScreen.respondToUserInput(e);
+        screen = screen.respondToUserInput(e);
         repaint();
     }
 

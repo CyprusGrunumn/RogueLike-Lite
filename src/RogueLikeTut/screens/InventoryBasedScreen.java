@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import RogueLikeTut.Creature;
 import RogueLikeTut.Item;
+import RogueLikeTut.Renderer;
 import asciiPanel.AsciiPanel;
 
 public abstract class InventoryBasedScreen implements AsciiScreen {
@@ -27,7 +28,8 @@ public abstract class InventoryBasedScreen implements AsciiScreen {
         this.letters = "abcdefghijklmnopqrstuvwxyz";
     }
 
-    public void displayOutput(AsciiPanel terminal){
+    public void displayOutput(Renderer renderer){
+        AsciiPanel terminal = renderer.terminal();
         ArrayList<String> lines = getList();
 
         int y = 23 - lines.size();
