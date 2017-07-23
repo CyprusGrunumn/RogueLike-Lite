@@ -11,10 +11,10 @@ public class Renderer {
     private AsciiPanel terminal;
     public AsciiPanel terminal() { return terminal; }
 
-    private JPanel canvas;
-    public JPanel canvas() { return canvas; }
+    private SpritePanel canvas;
+    public SpritePanel canvas() { return canvas; }
 
-    public Renderer(AsciiPanel terminal, JPanel canvas) {
+    public Renderer(AsciiPanel terminal, SpritePanel canvas) {
         this.terminal = terminal;
         this.canvas = canvas;
     }

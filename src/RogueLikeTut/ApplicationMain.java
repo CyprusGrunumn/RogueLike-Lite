@@ -22,7 +22,9 @@ public class ApplicationMain extends JFrame implements KeyListener {
     public ApplicationMain(){
         super();
         AsciiPanel terminal = new AsciiPanel();
-        JPanel canvas = new JPanel();
+        int width = terminal.getCharWidth() * terminal.getWidthInCharacters();
+        int height = terminal.getCharHeight() * terminal.getHeightInCharacters();
+        SpritePanel canvas = new SpritePanel(width, height);
         renderer = new Renderer(terminal, canvas);
         OverlayLayout layout = new OverlayLayout(this.getContentPane());
         this.getContentPane().setLayout(layout);

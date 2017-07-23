@@ -16,6 +16,7 @@ public class PlayScreen implements AsciiScreen {
     private List<String> messages;
     private FieldOfView fov;
     private Screen subscreen;
+    private SpriteLibrary sprites;
 
     //setup
     public PlayScreen() {
@@ -28,6 +29,10 @@ public class PlayScreen implements AsciiScreen {
         StuffFactory factory = new StuffFactory(world);
         createCreatures(factory);
         createItems(factory);
+
+        sprites = new SpriteLibrary();
+        sprites.loadSpriteSheet("Cat0", "DawnLike/Characters/Cat0.png");
+        sprites.addSprite('c', "Cat0", 16, 16, 16, 16);
     }
 
     private void createWorld() {
@@ -78,6 +83,22 @@ public class PlayScreen implements AsciiScreen {
         int left = getScrollX();
         int top = getScrollY();
         AsciiPanel terminal = renderer.terminal();
+        Graphics g = renderer.canvas().graphics();
+
+        g.setColor(Color.black);
+        g.fillRect(0, 0, renderer.canvas().getWidth(), renderer.canvas().getHeight());
+
+        SpriteLibrary.Sprite cat = sprites.getSprite('c');
+
+        int destX = 120;
+        int destY = 150;
+
+        g.drawImage(cat.sheet(),
+                destX, destY,
+                destX+cat.w(), destY+cat.h(),
+                cat.x(), cat.h(),
+                cat.x()+cat.w(), cat.h()+cat.h(),
+                null);
 
         displayTiles(terminal, left, top);
         displayMessages(terminal, messages);
