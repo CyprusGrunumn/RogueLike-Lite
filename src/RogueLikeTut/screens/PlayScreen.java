@@ -9,6 +9,8 @@ import RogueLikeTut.*;
 import asciiPanel.AsciiPanel;
 
 public class PlayScreen implements AsciiScreen {
+    public static final int TILE_SIZE = 16;
+
     private World world;
     private Creature player;
     private int screenWidth;
@@ -29,20 +31,21 @@ public class PlayScreen implements AsciiScreen {
         StuffFactory factory = new StuffFactory(world);
         createCreatures(factory);
         createItems(factory);
-
-        sprites = new SpriteLibrary();
-        sprites.loadSpriteSheet("Cat0", "DawnLike/Characters/Cat0.png");
-        sprites.addSprite('c', "Cat0", 16, 16, 16, 16);
     }
 
     private void createWorld() {
         world = new WorldBuilder(90, 32, 5)
                 .makeCaves()
                 .build();
+        sprites = new SpriteLibrary();
     }
 
     private void createCreatures(StuffFactory factory) {
         player = factory.newPlayer(messages, fov);
+
+        sprites.addSprite(StuffFactory.Glyph.FUNGUS,
+                "DawnLike/Characters/Plant0.png",
+                0, 112, TILE_SIZE, TILE_SIZE);
 
         for (int z = 0; z < world.depth(); z++) {
             for (int i = 0; i < 4; i++) {
@@ -85,22 +88,11 @@ public class PlayScreen implements AsciiScreen {
         AsciiPanel terminal = renderer.terminal();
         Graphics g = renderer.canvas().graphics();
 
+        // Clear canvas
         g.setColor(Color.black);
         g.fillRect(0, 0, renderer.canvas().getWidth(), renderer.canvas().getHeight());
 
-        SpriteLibrary.Sprite cat = sprites.getSprite('c');
-
-        int destX = 120;
-        int destY = 150;
-
-        g.drawImage(cat.sheet(),
-                destX, destY,
-                destX+cat.w(), destY+cat.h(),
-                cat.x(), cat.h(),
-                cat.x()+cat.w(), cat.h()+cat.h(),
-                null);
-
-        displayTiles(terminal, left, top);
+        displayTiles(renderer, left, top);
         displayMessages(terminal, messages);
 
         String stats = String.format(" %3d/%3d hp %8s", player.hp(), player.maxHp(), hunger());
@@ -133,8 +125,23 @@ public class PlayScreen implements AsciiScreen {
         messages.clear();
     }
 
-    private void displayTiles(AsciiPanel terminal, int left, int top) {
+    private void displayTiles(Renderer renderer, int left, int top) {
+        AsciiPanel terminal = renderer.terminal();
+        Graphics g = renderer.canvas().graphics();
+
         fov.update(player.x, player.y, player.z, player.visionRadius());
+
+        SpriteLibrary.Sprite fungus = sprites.getSprite(StuffFactory.Glyph.FUNGUS);
+
+        int destX = 120;
+        int destY = 150;
+
+        g.drawImage(fungus.sheet(),
+                destX, destY,
+                destX+TILE_SIZE, destY+TILE_SIZE,
+                fungus.x(), fungus.h(),
+                fungus.x()+TILE_SIZE, fungus.h()+TILE_SIZE,
+                null);
 
         for (int x = 0; x < screenWidth; x++) {
             for (int y = 0; y < screenHeight; y++) {
