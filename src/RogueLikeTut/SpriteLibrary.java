@@ -16,20 +16,29 @@ public class SpriteLibrary {
         sprites = new HashMap<>();
     }
 
-    public void loadSpriteSheet(String name, String resource) {
+    private void loadSpriteSheet(String resource) {
         try {
             BufferedImage sheet = ImageIO.read(
                     SpriteLibrary.class.getClassLoader().getResource("RogueLikeTut/resources/" + resource));
-            spriteSheets.put(name, sheet);
+            spriteSheets.put(resource, sheet);
         } catch (IOException e) {
             System.err.println("loadSpriteSheet(): " + e.getMessage());
         }
     }
 
+    public void addSprite(StuffFactory.Glyph glyph, String sheet, int x, int y, int w, int h) {
+        addSprite(glyph.glyph(), sheet, x, y, w, h);
+    }
     public void addSprite(char glyph, String sheet, int x, int y, int w, int h) {
+        if (!spriteSheets.containsKey(sheet)) {
+            loadSpriteSheet(sheet);
+        }
         sprites.put(glyph, new Sprite(sheet, x, y, w, h));
     }
 
+    public Sprite getSprite(StuffFactory.Glyph glyph) {
+        return sprites.get(glyph.glyph());
+    }
     public Sprite getSprite(char glyph) {
         return sprites.get(glyph);
     }
