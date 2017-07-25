@@ -38,6 +38,15 @@ public class PlayScreen implements AsciiScreen {
                 .makeCaves()
                 .build();
         sprites = new SpriteLibrary();
+
+        sprites.addSprite(Tile.FLOOR.glyph(),
+                "DawnLike/Objects/Floor.png",
+                1*TILE_SIZE, 19*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+        sprites.addSprite(Tile.WALL.glyph(),
+                "DawnLike/Objects/Floor.png",
+                1*TILE_SIZE, 7*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
     }
 
     private void createCreatures(StuffFactory factory) {
@@ -46,6 +55,9 @@ public class PlayScreen implements AsciiScreen {
         sprites.addSprite(StuffFactory.Glyph.FUNGUS,
                 "DawnLike/Characters/Plant0.png",
                 0, 112, TILE_SIZE, TILE_SIZE);
+        sprites.addSprite(StuffFactory.Glyph.BAT,
+                "DawnLike/Characters/Avian0.png",
+                0, 11*TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
         for (int z = 0; z < world.depth(); z++) {
             for (int i = 0; i < 4; i++) {
@@ -61,6 +73,10 @@ public class PlayScreen implements AsciiScreen {
     }
 
     private void createItems(StuffFactory factory) {
+        sprites.addSprite(StuffFactory.Glyph.ROCK,
+                "DawnLike/Items/Rock.png",
+                0, 3*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
         for (int z = 0; z < world.depth(); z++) {
             for (int i = 0; i < world.width() * world.height() / 20; i++) {
                 factory.newRock(z);
@@ -131,27 +147,28 @@ public class PlayScreen implements AsciiScreen {
 
         fov.update(player.x, player.y, player.z, player.visionRadius());
 
-        SpriteLibrary.Sprite fungus = sprites.getSprite(StuffFactory.Glyph.FUNGUS);
-
-        int destX = 120;
-        int destY = 150;
-
-        g.drawImage(fungus.sheet(),
-                destX, destY,
-                destX+TILE_SIZE, destY+TILE_SIZE,
-                fungus.x(), fungus.h(),
-                fungus.x()+TILE_SIZE, fungus.h()+TILE_SIZE,
-                null);
-
         for (int x = 0; x < screenWidth; x++) {
             for (int y = 0; y < screenHeight; y++) {
                 int wx = x + left;
                 int wy = y + top;
 
-                if (player.canSee(wx, wy, player.z))
+                if (player.canSee(wx, wy, player.z)){
                     terminal.write(world.glyph(wx, wy, player.z), x, y, world.color(wx, wy, player.z));
-                else
+                    SpriteLibrary.Sprite sprite = sprites.getSprite(world.glyph(wx, wy, player.z));
+                    int drawX = TILE_SIZE * (x - 17);
+                    int drawY = TILE_SIZE * (y);
+                    if(sprite != null && drawX < 720 && drawY < 368) {
+                        g.drawImage(sprite.sheet(), drawX, drawY,
+                                drawX + TILE_SIZE, drawY + TILE_SIZE,
+                                sprite.x(), sprite.y(),
+                                sprite.x() + sprite.w(), sprite.y() + sprite.h(),
+                                null);
+                    }
+                }
+                else{
                     terminal.write(fov.tile(wx, wy, player.z).glyph(), x, y, Color.darkGray);
+
+                }
             }
         }
     }
