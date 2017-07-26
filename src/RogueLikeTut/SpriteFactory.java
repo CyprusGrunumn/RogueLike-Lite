@@ -43,9 +43,17 @@ public class SpriteFactory {
                 "Objects/Floor.png",
                 1, 19);
 
-        addSprite(Tile.WALL,
+        addSprite(Tile.FLOOR.glyph(), Color.darkGray, null,
                 "Objects/Floor.png",
-                1, 7);
+                1, 25);
+
+        addSprite(Tile.WALL,
+                "Objects/Wall.png",
+                10, 15);
+
+        addSprite(Tile.WALL.glyph(), Color.darkGray, null,
+                "Objects/Wall.png",
+                10, 21);
     }
 
     private void addCreatures() {
