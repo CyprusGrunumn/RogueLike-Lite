@@ -1,8 +1,7 @@
 package RogueLikeTut;
 
+import RogueLikeTut.spritePanel.SpritePanel;
 import asciiPanel.AsciiPanel;
-
-import javax.swing.*;
 
 /**
  * Created by Cyprus on 7/20/2017.

@@ -13,23 +13,23 @@ import java.util.ArrayList;
 import RogueLikeTut.Creature;
 import RogueLikeTut.Item;
 import RogueLikeTut.Renderer;
+import RogueLikeTut.spritePanel.SpritePanel;
 import asciiPanel.AsciiPanel;
 
-public abstract class InventoryBasedScreen implements AsciiScreen {
+public abstract class InventoryBasedScreen implements Screen {
     protected Creature player;
     private String letters;
 
     protected abstract String getVerb();
     protected abstract boolean isAcceptable(Item item);
-    protected abstract AsciiScreen use(Item item);
+    protected abstract Screen use(Item item);
 
     public InventoryBasedScreen(Creature player){
         this.player = player;
         this.letters = "abcdefghijklmnopqrstuvwxyz";
     }
 
-    public void displayOutput(Renderer renderer){
-        AsciiPanel terminal = renderer.terminal();
+    public void displayOutput(SpritePanel terminal){
         ArrayList<String> lines = getList();
 
         int y = 23 - lines.size();
@@ -40,7 +40,7 @@ public abstract class InventoryBasedScreen implements AsciiScreen {
         for (String line : lines){
             terminal.write(line, x, y++);
         }
-        terminal.clear(' ', 0, 23, 80, 1);
+        terminal.clear(' ', 0, 23, terminal.getWidthInCharacters(), 1);
         terminal.write("What would you like to " + getVerb() + "?", 2, 23);
 
         terminal.repaint();
@@ -63,7 +63,7 @@ public abstract class InventoryBasedScreen implements AsciiScreen {
         return lines;
     }
 
-    public AsciiScreen respondToUserInput(KeyEvent key) {
+    public Screen respondToUserInput(KeyEvent key) {
         char c = key.getKeyChar();
 
         Item[] items = player.inventory().getItems();

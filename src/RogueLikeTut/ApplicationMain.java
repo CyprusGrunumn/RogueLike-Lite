@@ -3,6 +3,8 @@ package RogueLikeTut;
 import javax.swing.*;
 
 import RogueLikeTut.screens.Screen;
+import RogueLikeTut.spritePanel.SpriteLibrary;
+import RogueLikeTut.spritePanel.SpritePanel;
 import asciiPanel.AsciiPanel;
 
 import java.awt.*;
@@ -12,40 +14,28 @@ import java.awt.event.KeyListener;
 import RogueLikeTut.screens.StartScreen;
 
 public class ApplicationMain extends JFrame implements KeyListener {
-
-
     private static final long serialVersionUID = -4978082929122180476L;
+    private final SpritePanel terminal;
 
     private Screen screen;
-    private Renderer renderer;
 
     public ApplicationMain(){
         super();
-        AsciiPanel terminal = new AsciiPanel();
-        int width = terminal.getCharWidth() * terminal.getWidthInCharacters();
-        int height = terminal.getCharHeight() * terminal.getHeightInCharacters();
-        SpritePanel canvas = new SpritePanel(width, height);
-        renderer = new Renderer(terminal, canvas);
-        OverlayLayout layout = new OverlayLayout(this.getContentPane());
-        this.getContentPane().setLayout(layout);
-        setupCanvas(canvas);
+        SpriteLibrary library = new SpriteLibrary();
+        SpriteFactory factory = new SpriteFactory(library);
+        terminal = new SpritePanel(45, 24, library);
+        //terminal.enableSprites(false);
         add(terminal);
-        add(canvas);
         pack();
         screen = new StartScreen();
         addKeyListener(this);
         repaint();
     }
 
-    public void setupCanvas(JPanel canvas){
-        canvas.setPreferredSize(renderer.terminal().getPreferredSize());
-        canvas.setBackground(Color.blue);
-    }
-
     @Override
     public void repaint(){
-        renderer.terminal().clear();
-        screen.displayOutput(renderer);
+        terminal.clear();
+        screen.displayOutput(terminal);
         super.repaint();
     }
 

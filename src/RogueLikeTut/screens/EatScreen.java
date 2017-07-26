@@ -22,7 +22,7 @@ public class EatScreen extends InventoryBasedScreen {
     }
 
     @Override
-    protected AsciiScreen use(Item item) {
+    protected Screen use(Item item) {
         player.eat(item);
         return null;
     }
