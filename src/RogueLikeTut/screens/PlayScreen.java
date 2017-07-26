@@ -6,11 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import RogueLikeTut.*;
+import RogueLikeTut.spritePanel.Sprite;
+import RogueLikeTut.spritePanel.SpriteLibrary;
+import RogueLikeTut.spritePanel.SpritePanel;
 import asciiPanel.AsciiPanel;
 
-public class PlayScreen implements AsciiScreen {
-    public static final int TILE_SIZE = 16;
-
+public class PlayScreen implements Screen {
     private World world;
     private Creature player;
     private int screenWidth;
@@ -18,11 +19,10 @@ public class PlayScreen implements AsciiScreen {
     private List<String> messages;
     private FieldOfView fov;
     private Screen subscreen;
-    private SpriteLibrary sprites;
 
     //setup
     public PlayScreen() {
-        screenWidth = 80;
+        screenWidth = 45;
         screenHeight = 23;
         messages = new ArrayList<String>();
         createWorld();
@@ -37,27 +37,10 @@ public class PlayScreen implements AsciiScreen {
         world = new WorldBuilder(90, 32, 5)
                 .makeCaves()
                 .build();
-        sprites = new SpriteLibrary();
-
-        sprites.addSprite(Tile.FLOOR.glyph(),
-                "DawnLike/Objects/Floor.png",
-                1*TILE_SIZE, 19*TILE_SIZE, TILE_SIZE, TILE_SIZE);
-
-        sprites.addSprite(Tile.WALL.glyph(),
-                "DawnLike/Objects/Floor.png",
-                1*TILE_SIZE, 7*TILE_SIZE, TILE_SIZE, TILE_SIZE);
-
     }
 
     private void createCreatures(StuffFactory factory) {
         player = factory.newPlayer(messages, fov);
-
-        sprites.addSprite(StuffFactory.Glyph.FUNGUS,
-                "DawnLike/Characters/Plant0.png",
-                0, 112, TILE_SIZE, TILE_SIZE);
-        sprites.addSprite(StuffFactory.Glyph.BAT,
-                "DawnLike/Characters/Avian0.png",
-                0, 11*TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
         for (int z = 0; z < world.depth(); z++) {
             for (int i = 0; i < 4; i++) {
@@ -73,10 +56,6 @@ public class PlayScreen implements AsciiScreen {
     }
 
     private void createItems(StuffFactory factory) {
-        sprites.addSprite(StuffFactory.Glyph.ROCK,
-                "DawnLike/Items/Rock.png",
-                0, 3*TILE_SIZE, TILE_SIZE, TILE_SIZE);
-
         for (int z = 0; z < world.depth(); z++) {
             for (int i = 0; i < world.width() * world.height() / 20; i++) {
                 factory.newRock(z);
@@ -98,27 +77,22 @@ public class PlayScreen implements AsciiScreen {
     }
 
     @Override
-    public void displayOutput(Renderer renderer) {
+    public void displayOutput(SpritePanel terminal) {
         int left = getScrollX();
         int top = getScrollY();
-        AsciiPanel terminal = renderer.terminal();
-        Graphics g = renderer.canvas().graphics();
+        Graphics g = terminal.getOverlayGraphics();
 
-        // Clear canvas
-        g.setColor(Color.black);
-        g.fillRect(0, 0, renderer.canvas().getWidth(), renderer.canvas().getHeight());
+        // Clear overlay
+        g.clearRect(0, 0, terminal.getWidth(), terminal.getHeight());
 
-        displayTiles(renderer, left, top);
+        displayTiles(terminal, left, top);
         displayMessages(terminal, messages);
 
         String stats = String.format(" %3d/%3d hp %8s", player.hp(), player.maxHp(), hunger());
-        renderer.terminal().write(stats, 1, 23);
+        terminal.write(stats, 1, 23);
 
         if (subscreen != null) {
-            subscreen.displayOutput(renderer);
-            terminal.setVisible(true);
-        } else {
-            terminal.setVisible(false);
+            subscreen.displayOutput(terminal);
         }
     }
 
@@ -141,10 +115,7 @@ public class PlayScreen implements AsciiScreen {
         messages.clear();
     }
 
-    private void displayTiles(Renderer renderer, int left, int top) {
-        AsciiPanel terminal = renderer.terminal();
-        Graphics g = renderer.canvas().graphics();
-
+    private void displayTiles(SpritePanel terminal, int left, int top) {
         fov.update(player.x, player.y, player.z, player.visionRadius());
 
         for (int x = 0; x < screenWidth; x++) {
@@ -152,29 +123,47 @@ public class PlayScreen implements AsciiScreen {
                 int wx = x + left;
                 int wy = y + top;
 
-                if (player.canSee(wx, wy, player.z)){
-                    terminal.write(world.glyph(wx, wy, player.z), x, y, world.color(wx, wy, player.z));
-                    SpriteLibrary.Sprite sprite = sprites.getSprite(world.glyph(wx, wy, player.z));
-                    int drawX = TILE_SIZE * (x - 17);
-                    int drawY = TILE_SIZE * (y);
-                    if(sprite != null && drawX < 720 && drawY < 368) {
-                        g.drawImage(sprite.sheet(), drawX, drawY,
-                                drawX + TILE_SIZE, drawY + TILE_SIZE,
-                                sprite.x(), sprite.y(),
-                                sprite.x() + sprite.w(), sprite.y() + sprite.h(),
+                if (player.canSee(wx, wy, player.z)) {
+                    Tile tile = world.tile(wx, wy, player.z);
+                    char glyph = world.glyph(wx, wy, player.z);
+                    Color color = world.color(wx, wy, player.z);
+                    Sprite sprite = terminal.getSpriteLibrary().getSprite(glyph, color, null);
+
+                    if (sprite != null && terminal.spritesEnabled() && glyph != tile.glyph()) {
+                        Graphics g = terminal.getOverlayGraphics();
+
+                        int canvasX = x * terminal.getCharWidth();
+                        int canvasY = y * terminal.getCharHeight();
+
+                        int spriteX = sprite.getX() * terminal.getCharWidth();
+                        int spriteY = sprite.getY() * terminal.getCharHeight();
+
+                        glyph = tile.glyph();
+                        color = tile.color();
+
+                        terminal.write(glyph, x, y, color, terminal.spritesEnabled());
+
+                        g.drawImage(sprite.getSheet(),
+                                canvasX, canvasY,
+                                canvasX + terminal.getCharWidth(), canvasY + terminal.getCharHeight(),
+                                spriteX, spriteY,
+                                spriteX + terminal.getCharWidth(), spriteY + terminal.getCharHeight(),
                                 null);
+
+
+                    } else {
+                        terminal.write(glyph, x, y, color, terminal.spritesEnabled());
                     }
                 }
                 else{
-                    terminal.write(fov.tile(wx, wy, player.z).glyph(), x, y, Color.darkGray);
-
+                    terminal.write(fov.tile(wx, wy, player.z).glyph(), x, y, Color.darkGray, terminal.spritesEnabled());
                 }
             }
         }
     }
 
     @Override
-    public AsciiScreen respondToUserInput(KeyEvent key) {
+    public Screen respondToUserInput(KeyEvent key) {
         if (subscreen != null) {
             subscreen = subscreen.respondToUserInput(key);
         } else {
@@ -221,7 +210,7 @@ public class PlayScreen implements AsciiScreen {
         return player.z == 0 && world.tile(player.x, player.y, player.z) == Tile.STAIRS_UP;
     }
 
-    private AsciiScreen userExits(){
+    private Screen userExits(){
         for (Item item : player.inventory().getItems()){
             if (item != null && item.name().equals("teddy bear"))
                 return new WinScreen();

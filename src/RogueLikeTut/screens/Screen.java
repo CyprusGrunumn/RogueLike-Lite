@@ -1,13 +1,10 @@
 package RogueLikeTut.screens;
 
-import RogueLikeTut.Renderer;
-
 import java.awt.event.KeyEvent;
 
-/**
- * Created by Cyprus on 7/20/2017.
- */
-public interface Screen {
+import RogueLikeTut.spritePanel.SpritePanel;
+
+public interface AsciiScreen {
     public Screen respondToUserInput(KeyEvent key);
-    public void displayOutput(Renderer renderer);
+    public void displayOutput(SpritePanel terminal);
 }
