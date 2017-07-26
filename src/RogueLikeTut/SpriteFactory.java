@@ -56,13 +56,16 @@ public class SpriteFactory {
                 10, 21);
     }
 
-    private void addCreatures() {
+    private void addCreatures(){
         addSprite(StuffFactory.Glyph.FUNGUS,
                 "Characters/Plant0.png",
                 0, 7);
         addSprite(StuffFactory.Glyph.BAT,
                 "Characters/Avian0.png",
                 0, 11);
+        addSprite(StuffFactory.Glyph.PLAYER,
+                "Characters/Player0.png",
+                0, 0);
     }
 
     private void addItems() {
