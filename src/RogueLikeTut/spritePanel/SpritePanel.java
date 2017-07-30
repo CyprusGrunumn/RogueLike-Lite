@@ -171,6 +171,10 @@ public class SpritePanel extends AsciiPanel {
      * @return this for convenient chaining of method calls
      */
     public SpritePanel write(char character, int x, int y, Color foreground, Color background, boolean isSprite) {
+        if (getWidthInCharacters() <= x || getHeightInCharacters() <= y) {
+            return this;
+        }
+
         Color fg = foreground;
         Color bg = background;
 
@@ -426,6 +430,14 @@ public class SpritePanel extends AsciiPanel {
      */
     @Override
     public SpritePanel write(String string, int x, int y, Color foreground, Color background) {
+        if (getWidthInCharacters() <= x || getHeightInCharacters() <= y) {
+            return this;
+        }
+
+        if (string.length() + x > getWidthInCharacters()) {
+            string = string.substring(0, getWidthInCharacters() - x - 1);
+        }
+
         super.write(string, x, y, foreground, background);
 
         for (int i = 0; i < string.length(); i++) {
@@ -476,6 +488,15 @@ public class SpritePanel extends AsciiPanel {
      */
     @Override
     public SpritePanel writeCenter(String string, int y, Color foreground, Color background) {
+        if (getHeightInCharacters() <= y) {
+            return this;
+        }
+
+        if (string.length() > getWidthInCharacters()) {
+            int excess = (string.length() - getWidthInCharacters()) / 2;
+            string = string.substring(excess, getWidthInCharacters() + excess - 1);
+        }
+
         super.writeCenter(string, y, foreground, background);
 
         int x = (getWidthInCharacters() - string.length()) / 2;

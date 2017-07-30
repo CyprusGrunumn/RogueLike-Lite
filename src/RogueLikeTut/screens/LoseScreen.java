@@ -10,7 +10,7 @@ public class LoseScreen implements Screen {
 
     public void displayOutput(SpritePanel terminal) {
         terminal.write("You Lose.", 1, 1);
-        terminal.writeCenter("-- press [enter] to restart --", 22);
+        terminal.writeCenter("-- press [enter] to restart --", terminal.getHeightInCharacters() - 2);
     }
 
     public Screen respondToUserInput(KeyEvent key) {

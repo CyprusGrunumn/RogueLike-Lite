@@ -10,7 +10,7 @@ public class StartScreen implements Screen {
 
     public void displayOutput(SpritePanel terminal) {
         terminal.write("rl Tutorial", 1, 1);
-        terminal.writeCenter("--Press [Enter] to start--", 22);
+        terminal.writeCenter("--Press [Enter] to start--", terminal.getHeightInCharacters() - 2);
     }
 
     public Screen respondToUserInput(KeyEvent key) {

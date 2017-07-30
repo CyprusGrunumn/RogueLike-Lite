@@ -14,16 +14,12 @@ import asciiPanel.AsciiPanel;
 public class PlayScreen implements Screen {
     private World world;
     private Creature player;
-    private int screenWidth;
-    private int screenHeight;
     private List<String> messages;
     private FieldOfView fov;
     private Screen subscreen;
 
     //setup
     public PlayScreen() {
-        screenWidth = 45;
-        screenHeight = 23;
         messages = new ArrayList<String>();
         createWorld();
         fov = new FieldOfView(world);
@@ -68,18 +64,18 @@ public class PlayScreen implements Screen {
         factory.newVictoryItem(world.depth() - 1);
     }
 
-    public int getScrollX() {
-        return Math.max(0, Math.min(player.x - screenWidth / 2, world.width() - screenWidth));
+    public int getScrollX(int screenWidth) {
+        return Math.max(-5, Math.min(player.x - screenWidth / 2, world.width() + 5 - screenWidth));
     }
 
-    public int getScrollY() {
-        return Math.max(0, Math.min(player.y - screenHeight / 2, world.height() - screenHeight));
+    public int getScrollY(int screenHeight) {
+        return Math.max(-5, Math.min(player.y - screenHeight / 2, world.height() + 5 - screenHeight));
     }
 
     @Override
     public void displayOutput(SpritePanel terminal) {
-        int left = getScrollX();
-        int top = getScrollY();
+        int left = getScrollX(terminal.getWidthInCharacters());
+        int top = getScrollY(terminal.getHeightInCharacters() - 1);
         Graphics g = terminal.getOverlayGraphics();
 
         // Clear overlay
@@ -89,7 +85,7 @@ public class PlayScreen implements Screen {
         displayMessages(terminal, messages);
 
         String stats = String.format(" %3d/%3d hp %8s", player.hp(), player.maxHp(), hunger());
-        terminal.write(stats, 1, 23);
+        terminal.write(stats, 1, terminal.getHeightInCharacters() - 1);
 
         if (subscreen != null) {
             subscreen.displayOutput(terminal);
@@ -108,7 +104,7 @@ public class PlayScreen implements Screen {
     }
 
     private void displayMessages(AsciiPanel terminal, List<String> messages) {
-        int top = screenHeight - messages.size();
+        int top = terminal.getHeightInCharacters() - messages.size() - 1;
         for (int i = 0; i < messages.size(); i++) {
             terminal.writeCenter(messages.get(i), top + i);
         }
@@ -118,8 +114,18 @@ public class PlayScreen implements Screen {
     private void displayTiles(SpritePanel terminal, int left, int top) {
         fov.update(player.x, player.y, player.z, player.visionRadius());
 
-        for (int x = 0; x < screenWidth; x++) {
-            for (int y = 0; y < screenHeight; y++) {
+        int visibleWidth = Math.min(terminal.getWidthInCharacters(), world.width() - left);
+        int visibleHeight = Math.min(terminal.getHeightInCharacters() - 1, world.height() - top);
+
+        int offsetX = Math.max(
+                Math.abs(Math.min(left, 0)),
+                Math.max(0, terminal.getWidthInCharacters() - world.width()) / 2);
+        int offsetY = Math.max(
+                Math.abs(Math.min(top, 0)),
+                Math.max(0, terminal.getHeightInCharacters() - world.height()) / 2);
+
+        for (int x = offsetX; x < visibleWidth; x++) {
+            for (int y = offsetY; y < visibleHeight; y++) {
                 int wx = x + left;
                 int wy = y + top;
 
