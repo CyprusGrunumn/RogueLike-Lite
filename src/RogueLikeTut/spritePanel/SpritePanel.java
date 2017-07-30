@@ -3,8 +3,10 @@ package RogueLikeTut.spritePanel;
 import asciiPanel.AsciiFont;
 import asciiPanel.AsciiPanel;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 
 public class SpritePanel extends AsciiPanel {
     private static final long serialVersionUID = 3034994395811568366L;
@@ -21,6 +23,7 @@ public class SpritePanel extends AsciiPanel {
 
     private final SpriteLibrary library;
     private boolean spritesEnabled;
+    private int scale;
 
     public boolean spritesEnabled() { return spritesEnabled; }
     public SpritePanel enableSprites(boolean spritesEnabled) {
@@ -32,9 +35,21 @@ public class SpritePanel extends AsciiPanel {
 
     public Graphics getOverlayGraphics() { return overlayGraphics; }
 
-    public SpritePanel(int width, int height, SpriteLibrary library) {
+    public int getScale() { return scale; }
+    public SpritePanel setScale(int scale) {
+        this.scale = scale;
+        Dimension panelSize = new Dimension(
+                getCharWidth() * getWidthInCharacters() * scale,
+                getCharHeight() * getHeightInCharacters() * scale);
+        setPreferredSize(panelSize);
+        return this;
+    }
+
+    public SpritePanel(int width, int height, int scale, SpriteLibrary library) {
         super(width, height);
         setAsciiFont(AsciiFont.CP437_16x16);
+
+        setScale(scale);
 
         spritesEnabled = true;
 
@@ -57,7 +72,16 @@ public class SpritePanel extends AsciiPanel {
         if (g == null)
             throw new NullPointerException();
 
-        super.paint(g);
+        super.paint(new DebugGraphics() {
+            @Override
+            public boolean drawImage(Image img, int x, int y, ImageObserver observer) {
+                return g.drawImage(img,
+                        x, y,
+                        img.getWidth(observer) * scale,
+                        img.getHeight(observer) * scale,
+                        observer);
+            }
+        });
 
         if (!spritesEnabled)
             return;
@@ -88,8 +112,16 @@ public class SpritePanel extends AsciiPanel {
             }
         }
 
-        g.drawImage(offscreenBuffer, 0, 0, this);
-        g.drawImage(overlayBuffer, 0, 0, this);
+        g.drawImage(offscreenBuffer,
+                0, 0,
+                offscreenBuffer.getWidth() * scale,
+                offscreenBuffer.getHeight() * scale,
+                this);
+        g.drawImage(overlayBuffer,
+                0, 0,
+                overlayBuffer.getWidth() * scale,
+                overlayBuffer.getHeight() * scale,
+                this);
     }
 
     public boolean isSprite(int x, int y) {

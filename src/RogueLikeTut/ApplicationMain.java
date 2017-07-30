@@ -15,8 +15,10 @@ import RogueLikeTut.screens.StartScreen;
 public class ApplicationMain extends JFrame implements KeyListener {
     private static final long serialVersionUID = -4978082929122180476L;
 
-    private static int charWidth = 45;
-    private static int charHeight = 24;
+    private static int charWidth = 40;
+    private static int charHeight = 22;
+
+    private static int scale = 2;
 
     private SpritePanel terminal;
 
@@ -27,7 +29,7 @@ public class ApplicationMain extends JFrame implements KeyListener {
         super();
         library = new SpriteLibrary();
         SpriteFactory factory = new SpriteFactory(library);
-        terminal = new SpritePanel(charWidth, charHeight, library);
+        terminal = new SpritePanel(charWidth, charHeight, scale, library);
         //terminal.enableSprites(false);
         this.setBackground(Color.black);
         add(terminal);
@@ -39,14 +41,12 @@ public class ApplicationMain extends JFrame implements KeyListener {
 
     private void resize() {
         // We need an integer ceil here, not floor
-        charWidth = this.getContentPane().getWidth() / 16;
-        charHeight = this.getContentPane().getHeight() / 16;
+        charWidth = this.getContentPane().getWidth() / (terminal.getCharWidth() * terminal.getScale());
+        charHeight = this.getContentPane().getHeight() / (terminal.getCharHeight() * terminal.getScale());
 
         if (terminal.getWidthInCharacters() != charWidth || terminal.getHeightInCharacters() != charHeight) {
-            System.out.println(charWidth + " " + charHeight);
-
             remove(terminal);
-            terminal = new SpritePanel(charWidth, charHeight, library);
+            terminal = new SpritePanel(charWidth, charHeight, 2, library);
             add(terminal);
 
             validate();
