@@ -69,4 +69,73 @@ public class StuffFactory {
         return item;
     }
 
+    public Item newDagger(int depth){
+        Item item = new Item(')', AsciiPanel.white, "dagger");
+        item.modifyAttackValue(5);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+    public Item newSword(int depth){
+        Item item = new Item(')', AsciiPanel.brightWhite, "sword");
+        item.modifyAttackValue(10);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newStaff(int depth){
+        Item item = new Item(')', AsciiPanel.yellow, "Staff");
+        item.modifyAttackValue(5);
+        item.modifyDefenseValue(3);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newLightArmor(int depth){
+        Item item = new Item('[', AsciiPanel.green, "Tunic");
+        item.modifyDefenseValue(2);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newMediumArmor(int depth){
+        Item item = new Item('[', AsciiPanel.white, "Chainmail");
+        item.modifyDefenseValue(4);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newHeavyArmor(int depth){
+        Item item = new Item('[', AsciiPanel.brightWhite, "Platemail");
+        item.modifyDefenseValue(6);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item randomWeapon(int depth){
+        switch ((int)(Math.random() * 3)){
+            case 0: return newDagger(depth);
+            case 1: return newSword(depth);
+            default: return newStaff(depth);
+        }
+    }
+
+    public Item randomArmor(int depth){
+        switch ((int)(Math.random() * 3)){
+            case 0: return newLightArmor(depth);
+            case 1: return newMediumArmor(depth);
+            default: return newHeavyArmor(depth);
+        }
+    }
+    /*One advantage of having all our items be the same class but have different values is that an item can be more than one thing,
+    e.g. you could make an edible weapon and the player would be able to eat or wield it with no extra code or you could have
+    have a weapon that increases attack and defense.
+    public Item newEdibleWeapon(int depth){
+        Item item = new Item(')', AsciiPanel.yellow, "baguette");
+        item.modifyAttackValue(3);
+        item.modifyFoodValue(50);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+    */
+
 }

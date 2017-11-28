@@ -60,6 +60,14 @@ public class PlayScreen implements Screen {
             for (int i = 0; i < 3; i++){
                 factory.newBread(z);
                 factory.newFruit(z);
+                factory.newDagger(z);
+                factory.newSword(z);
+                factory.newStaff(z);
+                factory.newLightArmor(z);
+                factory.newMediumArmor(z);
+                factory.newHeavyArmor(z);
+                factory.randomArmor(z);
+                factory.randomWeapon(z);
             }
         }
         factory.newVictoryItem(world.depth() - 1);
@@ -81,7 +89,7 @@ public class PlayScreen implements Screen {
         displayTiles(terminal, left, top);
         displayMessages(terminal, messages);
 
-        String stats = String.format(" %3d/%3d hp %8s", player.hp(), player.maxHp(), hunger());
+        String stats = String.format(" %3d/%3d hp %8s Attack %4s Defense %4s", player.hp(), player.maxHp(), hunger(), player.attackValue(), player.defenseValue());
         terminal.write(stats, 1, 23);
 
         if (subscreen != null)
@@ -143,6 +151,7 @@ public class PlayScreen implements Screen {
                 case KeyEvent.VK_N: player.moveBy( 1, 1, 0); break;
                 case KeyEvent.VK_D: subscreen = new DropScreen(player); break;
                 case KeyEvent.VK_E: subscreen = new EatScreen(player); break;
+                case KeyEvent.VK_W: subscreen = new EquipScreen(player); break;
             }
 
             switch (key.getKeyChar()){

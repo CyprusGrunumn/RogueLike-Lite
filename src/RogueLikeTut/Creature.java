@@ -27,10 +27,18 @@ public class Creature {
     public int hp() { return hp; }
 
     private int attackValue;
-    public int attackValue() { return attackValue; }
+    public int attackValue() {
+        return attackValue
+                + (weapon == null ? 0 : weapon.attackValue())
+                + (armor == null ? 0 : armor.attackValue());
+    }
 
     private int defenseValue;
-    public int defenseValue() { return defenseValue; }
+    public int defenseValue() {
+        return defenseValue
+                + (weapon == null ? 0 : weapon.defenseValue())
+                + (armor == null ? 0 : armor.defenseValue());
+    }
 
     private int visionRadius;
     public int visionRadius() { return visionRadius; }
@@ -46,6 +54,12 @@ public class Creature {
 
     private int food;
     public int food() { return food; }
+
+    private Item weapon;
+    public Item weapon() { return  weapon; }
+
+    private Item armor;
+    public Item armor() { return armor; }
 
     public Creature(World world, char glyph, Color color, String name,int maxHp, int attack, int defense){
         this.world = world;
@@ -154,7 +168,7 @@ public class Creature {
 
     private void leaveCorpse(){
         Item corpse = new Item('%', color, name + " corpse");
-        corpse.modifyFoodValue(maxHp);
+        corpse.modifyFoodValue(maxHp * 3);
         world.addAtEmptySpace(corpse, x, y, z);
     }
 
@@ -202,10 +216,38 @@ public class Creature {
         }
     }
 
+    public void unequip(Item item){
+        if (item == null)
+            return;
+        if (item == armor) {
+            doAction("remove a " + item.name());
+            armor = null;
+        }else if (item== weapon) {
+            doAction("put away the " + item.name());
+        weapon=null;
+        }
+    }
+
+    public void equip(Item item) {
+        if (item.attackValue() == 0 && item.defenseValue() == 0)
+            return;
+
+        if(item.attackValue() >= item.defenseValue()) {
+            unequip(weapon);
+            doAction("Wield the " + item.name());
+            weapon = item;
+        }else {
+            unequip(armor);
+            doAction("put on the " + item.name());
+            armor = item;
+        }
+    }
+
     public void drop(Item item){
         if (world.addAtEmptySpace(item, x, y, z)){
             doAction("drop a " + item.name());
             inventory.remove(item);
+            unequip(item);
         } else {
             notify("There's nowhere to drop the %s.", item.name());
         }
@@ -227,5 +269,7 @@ public class Creature {
 
         modifyFood(item.foodValue());
         inventory.remove(item);
+        unequip(item);
     }
+
 }
