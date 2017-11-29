@@ -26,6 +26,8 @@ public class PlayerAi extends CreatureAi {
             creature.dig(x, y, z);
         }
     }
+    @Override
+    public void onGainLevel(){}
 
     public void onNotify(String message){
         messages.add(message);

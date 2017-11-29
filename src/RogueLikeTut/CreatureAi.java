@@ -24,6 +24,10 @@ public class CreatureAi {
     public void onNotify(String format) {
     }
 
+    public void onGainLevel(){
+        new LevelUpController().autoLevelUp(creature);
+    }
+
     public boolean canSee(int wx, int wy, int wz) {
         if (creature.z != wz)
             return false;

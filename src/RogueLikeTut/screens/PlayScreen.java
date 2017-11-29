@@ -89,7 +89,7 @@ public class PlayScreen implements Screen {
         displayTiles(terminal, left, top);
         displayMessages(terminal, messages);
 
-        String stats = String.format(" %3d/%3d hp %8s Attack %4s Defense %4s", player.hp(), player.maxHp(), hunger(), player.attackValue(), player.defenseValue());
+        String stats = String.format(" %3d/%3d hp %8s Attack %4s Defense %4s Level %2s", player.hp(), player.maxHp(), hunger(), player.attackValue(), player.defenseValue(), player.level());
         terminal.write(stats, 1, 23);
 
         if (subscreen != null)
@@ -133,6 +133,8 @@ public class PlayScreen implements Screen {
 
     @Override
     public Screen respondToUserInput(KeyEvent key) {
+        int level = player.level();
+
         if (subscreen != null) {
             subscreen = subscreen.respondToUserInput(key);
         } else {
@@ -165,6 +167,9 @@ public class PlayScreen implements Screen {
                 case '>': player.moveBy( 0, 0, 1); break;
             }
         }
+
+        if (player.level() > level)
+            subscreen = new LevelUpScreen(player, player.level() - level);
 
         if (subscreen == null)
             world.update();
