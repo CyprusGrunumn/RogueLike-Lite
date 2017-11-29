@@ -2,10 +2,7 @@ package RogueLikeTut;
 
 import java.util.List;
 
-import RogueLikeTut.Ai.BatAi;
-import RogueLikeTut.Ai.FungusAi;
-import RogueLikeTut.Ai.GoblinAi;
-import RogueLikeTut.Ai.PlayerAi;
+import RogueLikeTut.Ai.*;
 import asciiPanel.AsciiPanel;
 
 public class StuffFactory {
@@ -34,6 +31,13 @@ public class StuffFactory {
         world.addAtEmptyLocation(bat, depth);
         new BatAi(bat);
         return bat;
+    }
+
+    public Creature newZombie(int depth, Creature player){
+        Creature zombie = new Creature(world, 'z', AsciiPanel.white, "zombie", 50, 10, 10);
+        world.addAtEmptyLocation(zombie, depth);
+        new ZombieAi(zombie, player);
+        return zombie;
     }
 
   /*  public Creature newGoblin(int depth) {
