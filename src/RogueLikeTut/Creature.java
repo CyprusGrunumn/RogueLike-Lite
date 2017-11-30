@@ -129,23 +129,7 @@ public class Creature {
         if (other == null)
             ai.onEnter(x+mx, y+my, z+mz, tile);
         else
-            attack(other);
-    }
-
-    public void attack(Creature other){
-
-        int amount = Math.max(0, attackValue() - other.defenseValue());
-
-        amount = (int)(Math.random() * amount) + 1;
-
-        doAction("attack the '%s' for %d damage", other.name, amount);
-
-        other.modifyHp(-amount);
-
-        modifyFood(-5);
-
-        if (other.hp < 1)
-            gainXp(other);
+            meleeAttack(other);
     }
 
     public void throwItem(Item item, int wx, int wy, int wz){
@@ -172,14 +156,32 @@ public class Creature {
         world.addAtEmptySpace(item, wx, wy, wz);
     }
 
-    private void throwAttack(Item item, Creature other){
-        modifyFood(-1);
+    public void meleeAttack(Creature other){
+        commonAttack(other, attackValue(), "attack the %s for %d damage", other.name);
+    }
 
-        int amount = Math.max(0, attackValue / 2 + item.thrownAttackValue() - other.defenseValue());
+    private void throwAttack(Item item, Creature other) {
+        commonAttack(other, attackValue / 2 + item.thrownAttackValue(), "throw a %s at the %s for %d damage", item.name(), other.name);
+    }
+
+    public void rangedWeaponAttack(Creature other){
+        commonAttack(other, attackValue / 2 + weapon.rangedAttackValue(), "fire a %s at the %s for %d damage", weapon.name(), other.name);
+    }
+
+    private void commonAttack(Creature other, int attack, String action, Object ... params) {
+        modifyFood(-2);
+
+        int amount = Math.max(0, attack - other.defenseValue());
 
         amount = (int)(Math.random() * amount) + 1;
 
-        doAction("throw a %s at the %s for %d damage", item.name(), other.name, amount);
+        Object[] params2 = new Object[params.length+1];
+        for (int i = 0; i < params.length; i++){
+            params2[i] = params[i];
+        }
+        params2[params2.length - 1] = amount;
+
+        doAction(action, params2);
 
         other.modifyHp(-amount);
 
@@ -346,6 +348,18 @@ public class Creature {
             notify("There's nowhere to drop the %s.", item.name());
         }
     }
+
+    private void getRidOf(Item item){
+        inventory.remove(item);
+        unequip(item);
+    }
+
+    private void putAt(Item item, int wx, int wy, int wz){
+        inventory.remove(item);
+        unequip(item);
+        world.addAtEmptySpace(item, wx, wy, wz);
+    }
+
 
     public boolean canSee(int wx, int wy, int wz){
         return ai.canSee(wx, wy, wz);

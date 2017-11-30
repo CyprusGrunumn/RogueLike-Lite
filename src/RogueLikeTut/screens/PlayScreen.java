@@ -63,6 +63,8 @@ public class PlayScreen implements Screen {
                 factory.newDagger(z);
                 factory.newSword(z);
                 factory.newStaff(z);
+                factory.newLongBow(z);
+                factory.newCrossBow(z);
                 factory.newLightArmor(z);
                 factory.newMediumArmor(z);
                 factory.newHeavyArmor(z);
@@ -161,6 +163,13 @@ public class PlayScreen implements Screen {
                 case KeyEvent.VK_T: subscreen = new ThrowScreen(player,
                         player.x - getScrollX(),
                         player.y - getScrollY()); break;
+                case KeyEvent.VK_F:
+                    if (player.weapon() == null || player.weapon().rangedAttackValue() == 0)
+                        player.notify("You don't have a ranged weapon equiped.");
+                    else
+                        subscreen = new FireWeaponScreen(player,
+                                player.x - getScrollX(),
+                                player.y - getScrollY()); break;
             }
 
             switch (key.getKeyChar()){

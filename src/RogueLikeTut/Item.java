@@ -36,6 +36,10 @@ public class Item {
     public int thrownAttackValue() { return thrownAttackValue; }
     public void modifyThrownAttackValue(int amount) { thrownAttackValue += amount; }
 
+    private int rangedAttackValue;
+    public int rangedAttackValue() { return rangedAttackValue; }
+    public void modifyRangedAttackValue(int amount) { rangedAttackValue +=amount; }
+
     private int defenseValue;
     public int defenseValue() { return defenseValue; }
     public void modifyDefenseValue(int amount) { defenseValue += amount; }

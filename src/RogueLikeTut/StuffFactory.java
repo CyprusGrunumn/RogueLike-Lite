@@ -75,23 +75,39 @@ public class StuffFactory {
     }
 
     public Item newDagger(int depth){
-        Item item = new Item(')', AsciiPanel.white, "dagger");
+        Item item = new Item('|', AsciiPanel.white, "dagger");
         item.modifyAttackValue(5);
         item.modifyThrownAttackValue(5);
         world.addAtEmptyLocation(item, depth);
         return item;
     }
     public Item newSword(int depth){
-        Item item = new Item(')', AsciiPanel.brightWhite, "sword");
+        Item item = new Item('|', AsciiPanel.brightWhite, "sword");
         item.modifyAttackValue(10);
         world.addAtEmptyLocation(item, depth);
         return item;
     }
 
     public Item newStaff(int depth){
-        Item item = new Item(')', AsciiPanel.yellow, "Staff");
+        Item item = new Item('|', AsciiPanel.yellow, "staff");
         item.modifyAttackValue(5);
         item.modifyDefenseValue(3);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newLongBow(int depth){
+        Item item = new Item(')', AsciiPanel.yellow, "bow");
+        item.modifyAttackValue(1);
+        item.modifyRangedAttackValue(8);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newCrossBow(int depth){
+        Item item = new Item(')', AsciiPanel.green, "Crossbow");
+        item.modifyAttackValue(3);
+        item.modifyRangedAttackValue(10);
         world.addAtEmptyLocation(item, depth);
         return item;
     }
@@ -118,9 +134,10 @@ public class StuffFactory {
     }
 
     public Item randomWeapon(int depth){
-        switch ((int)(Math.random() * 3)){
+        switch ((int)(Math.random() * 4)){
             case 0: return newDagger(depth);
             case 1: return newSword(depth);
+            case 2: return newLongBow(depth);
             default: return newStaff(depth);
         }
     }
