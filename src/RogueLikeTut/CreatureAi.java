@@ -36,7 +36,7 @@ public class CreatureAi {
             return false;
 
         for (Point p : new Line(creature.x, creature.y, wx, wy)){
-            if (creature.tile(p.x, p.y, wz).isGround() || p.x == wx && p.y == wy)
+            if (creature.realTile(p.x, p.y, wz).isGround() || p.x == wx && p.y == wy)
                 continue;
 
             return false;
@@ -56,6 +56,10 @@ public class CreatureAi {
         else
             creature.moveBy(mx, my, 0);
 
+    }
+
+    public Tile rememberedTile(int wx, int wy, int wz){
+        return Tile.UNKNOWN;
     }
 }
 
