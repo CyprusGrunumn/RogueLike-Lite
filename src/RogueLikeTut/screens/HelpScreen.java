@@ -1,5 +1,6 @@
 package RogueLikeTut.screens;
 
+import RogueLikeTut.spritePanel.SpritePanel;
 import asciiPanel.AsciiPanel;
 
 import java.awt.event.KeyEvent;
@@ -9,7 +10,7 @@ import java.awt.event.KeyEvent;
  */
 public class HelpScreen implements Screen{
 
-    public void displayOutput(AsciiPanel terminal){
+    public void displayOutput(SpritePanel terminal){
         terminal.clear();
         terminal.writeCenter("RogueLike Help", 1);
         terminal.write("Descend the Caves of Slight Danger, find the lost Teddy bear, and return to", 1, 3);

@@ -11,8 +11,8 @@ import RogueLikeTut.Point;
 public class ThrowAtScreen extends TargetBasedScreen {
     private Item item;
 
-    public ThrowAtScreen(Creature player, int sx, int sy, Item item){
-        super(player, "Throw " + item.name() + "at?", sx, sy);
+    public ThrowAtScreen(PlayScreen playScreen, Creature player, int sx, int sy, Item item){
+        super(playScreen, player, "Throw " + item.name() + "at?", sx, sy);
         this.item = item;
     }
 

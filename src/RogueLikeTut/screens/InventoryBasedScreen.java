@@ -12,6 +12,8 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import RogueLikeTut.Creature;
 import RogueLikeTut.Item;
+import RogueLikeTut.Renderer;
+import RogueLikeTut.spritePanel.SpritePanel;
 import asciiPanel.AsciiPanel;
 
 public abstract class InventoryBasedScreen implements Screen {
@@ -27,19 +29,19 @@ public abstract class InventoryBasedScreen implements Screen {
         this.letters = "abcdefghijklmnopqrstuvwxyz";
     }
 
-    public void displayOutput(AsciiPanel terminal){
+    public void displayOutput(SpritePanel terminal){
         ArrayList<String> lines = getList();
 
-        int y = 23 - lines.size();
+        int y = terminal.getHeightInCharacters() - 1 - lines.size();
         int x = 4;
 
         if(lines.size() > 0)
-            terminal.clear(' ', x, y, 20, lines.size());
+            terminal.clear(' ', x, y, terminal.getHeightInCharacters() - 4, lines.size());
         for (String line : lines){
             terminal.write(line, x, y++);
         }
-        terminal.clear(' ', 0, 23, 80, 1);
-        terminal.write("What would you like to " + getVerb() + "?", 2, 23);
+        terminal.clear(' ', 0, terminal.getHeightInCharacters() - 1, terminal.getWidthInCharacters(), 1);
+        terminal.write("What would you like to " + getVerb() + "?", 2, terminal.getHeightInCharacters() - 1);
 
         terminal.repaint();
     }

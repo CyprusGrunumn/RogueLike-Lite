@@ -3,6 +3,7 @@ package RogueLikeTut.screens;
 import RogueLikeTut.Creature;
 import RogueLikeTut.Line;
 import RogueLikeTut.Point;
+import RogueLikeTut.spritePanel.SpritePanel;
 import asciiPanel.AsciiPanel;
 
 import java.awt.event.KeyEvent;
@@ -12,6 +13,7 @@ import java.awt.event.KeyEvent;
  */
 public class TargetBasedScreen implements Screen {
 
+    protected PlayScreen playScreen;
     protected Creature player;
     protected String caption;
     private int sx;
@@ -19,15 +21,18 @@ public class TargetBasedScreen implements Screen {
     private int x;
     private int y;
 
-    public TargetBasedScreen(Creature player, String caption, int sx, int sy){
+    public TargetBasedScreen(PlayScreen playScreen, Creature player, String caption, int sx, int sy){
+        this.playScreen = playScreen;
         this.player = player;
         this.caption = caption;
         this.sx = sx;
         this.sy = sy;
     }
 
-    public void displayOutput(AsciiPanel terminal){
-        for (Point p : new Line(sx, sy, sx + x, sy + y)){
+    public void displayOutput(SpritePanel terminal){
+        int screenSx = sx - playScreen.getScrollX(terminal.getWidthInCharacters());
+        int screenSy = sy - playScreen.getScrollY(terminal.getHeightInCharacters());
+        for (Point p : new Line(screenSx, screenSy, screenSx + x, screenSy + y)){
             if(p.x < 0 || p.x >= 80 || p.y < 0 || p.y >= 24)
                 continue;
 

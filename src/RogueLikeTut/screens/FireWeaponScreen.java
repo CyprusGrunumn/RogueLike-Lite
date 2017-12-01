@@ -9,8 +9,8 @@ import RogueLikeTut.Point;
  */
 public class FireWeaponScreen extends TargetBasedScreen {
 
-    public FireWeaponScreen(Creature player, int sx, int sy){
-        super(player, "Fire " + player.weapon().name() + " at?", sx, sy);
+    public FireWeaponScreen(PlayScreen playScreen, Creature player, int sx, int sy){
+        super(playScreen, player, "Fire " + player.weapon().name() + " at?", sx, sy);
     }
 
     public boolean isAcceptable(int x, int y) {

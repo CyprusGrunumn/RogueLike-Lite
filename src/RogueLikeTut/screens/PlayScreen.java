@@ -6,21 +6,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import RogueLikeTut.*;
+import RogueLikeTut.spritePanel.Sprite;
+import RogueLikeTut.spritePanel.SpriteLibrary;
+import RogueLikeTut.spritePanel.SpritePanel;
 import asciiPanel.AsciiPanel;
 
 public class PlayScreen implements Screen {
     private World world;
     private Creature player;
-    private int screenWidth;
-    private int screenHeight;
     private List<String> messages;
     private FieldOfView fov;
     private Screen subscreen;
 
     //setup
     public PlayScreen() {
-        screenWidth = 80;
-        screenHeight = 23;
         messages = new ArrayList<String>();
         createWorld();
         fov = new FieldOfView(world);
@@ -75,27 +74,32 @@ public class PlayScreen implements Screen {
         factory.newVictoryItem(world.depth() - 1);
     }
 
-    public int getScrollX() {
-        return Math.max(0, Math.min(player.x - screenWidth / 2, world.width() - screenWidth));
+    public int getScrollX(int screenWidth) {
+        return Math.max(-5, Math.min(player.x - screenWidth / 2, world.width() + 5 - screenWidth));
     }
 
-    public int getScrollY() {
-        return Math.max(0, Math.min(player.y - screenHeight / 2, world.height() - screenHeight));
+    public int getScrollY(int screenHeight) {
+        return Math.max(-5, Math.min(player.y - screenHeight / 2, world.height() + 5 - screenHeight));
     }
 
     @Override
-    public void displayOutput(AsciiPanel terminal) {
-        int left = getScrollX();
-        int top = getScrollY();
+    public void displayOutput(SpritePanel terminal) {
+        int left = getScrollX(terminal.getWidthInCharacters());
+        int top = getScrollY(terminal.getHeightInCharacters() - 1);
+        Graphics g = terminal.getOverlayGraphics();
+
+        // Clear overlay
+        g.clearRect(0, 0, terminal.getWidth(), terminal.getHeight());
 
         displayTiles(terminal, left, top);
         displayMessages(terminal, messages);
 
         String stats = String.format(" %3d/%3d hp %8s Attack %4s Defense %4s Level %2s", player.hp(), player.maxHp(), hunger(), player.attackValue(), player.defenseValue(), player.level());
-        terminal.write(stats, 1, 23);
+        terminal.write(stats, 1, terminal.getHeightInCharacters() - 1);
 
-        if (subscreen != null)
+        if (subscreen != null) {
             subscreen.displayOutput(terminal);
+        }
     }
 
     private String hunger(){
@@ -110,25 +114,66 @@ public class PlayScreen implements Screen {
     }
 
     private void displayMessages(AsciiPanel terminal, List<String> messages) {
-        int top = screenHeight - messages.size();
+        int top = terminal.getHeightInCharacters() - messages.size() - 1;
         for (int i = 0; i < messages.size(); i++) {
             terminal.writeCenter(messages.get(i), top + i);
         }
         messages.clear();
     }
 
-    private void displayTiles(AsciiPanel terminal, int left, int top) {
+    private void displayTiles(SpritePanel terminal, int left, int top) {
         fov.update(player.x, player.y, player.z, player.visionRadius());
 
-        for (int x = 0; x < screenWidth; x++) {
-            for (int y = 0; y < screenHeight; y++) {
+        int visibleWidth = Math.min(terminal.getWidthInCharacters(), world.width() - left);
+        int visibleHeight = Math.min(terminal.getHeightInCharacters() - 1, world.height() - top);
+
+        int offsetX = Math.max(
+                Math.abs(Math.min(left, 0)),
+                Math.max(0, terminal.getWidthInCharacters() - world.width()) / 2);
+        int offsetY = Math.max(
+                Math.abs(Math.min(top, 0)),
+                Math.max(0, terminal.getHeightInCharacters() - world.height()) / 2);
+
+        for (int x = offsetX; x < visibleWidth; x++) {
+            for (int y = offsetY; y < visibleHeight; y++) {
                 int wx = x + left;
                 int wy = y + top;
 
-                if (player.canSee(wx, wy, player.z))
-                    terminal.write(world.glyph(wx, wy, player.z), x, y, world.color(wx, wy, player.z));
-                else
-                    terminal.write(fov.tile(wx, wy, player.z).glyph(), x, y, Color.darkGray);
+                if (player.canSee(wx, wy, player.z)) {
+                    Tile tile = world.tile(wx, wy, player.z);
+                    char glyph = world.glyph(wx, wy, player.z);
+                    Color color = world.color(wx, wy, player.z);
+                    Sprite sprite = terminal.getSpriteLibrary().getSprite(glyph, color, null);
+
+                    if (sprite != null && terminal.spritesEnabled() && glyph != tile.glyph()) {
+                        Graphics g = terminal.getOverlayGraphics();
+
+                        int canvasX = x * terminal.getCharWidth();
+                        int canvasY = y * terminal.getCharHeight();
+
+                        int spriteX = sprite.getX() * terminal.getCharWidth();
+                        int spriteY = sprite.getY() * terminal.getCharHeight();
+
+                        glyph = tile.glyph();
+                        color = tile.color();
+
+                        terminal.write(glyph, x, y, color, terminal.spritesEnabled());
+
+                        g.drawImage(sprite.getSheet(),
+                                canvasX, canvasY,
+                                canvasX + terminal.getCharWidth(), canvasY + terminal.getCharHeight(),
+                                spriteX, spriteY,
+                                spriteX + terminal.getCharWidth(), spriteY + terminal.getCharHeight(),
+                                null);
+
+
+                    } else {
+                        terminal.write(glyph, x, y, color, terminal.spritesEnabled());
+                    }
+                }
+                else{
+                    terminal.write(fov.tile(wx, wy, player.z).glyph(), x, y, Color.darkGray, terminal.spritesEnabled());
+                }
             }
         }
     }
@@ -157,19 +202,22 @@ public class PlayScreen implements Screen {
                 case KeyEvent.VK_E: subscreen = new EatScreen(player); break;
                 case KeyEvent.VK_W: subscreen = new EquipScreen(player); break;
                 case KeyEvent.VK_X: subscreen = new ExamineScreen(player); break;
-                case KeyEvent.VK_SEMICOLON: subscreen = new LookScreen(player, "Looking",
-                        player.x - getScrollX(),
-                        player.y - getScrollY()); break;
-                case KeyEvent.VK_T: subscreen = new ThrowScreen(player,
-                        player.x - getScrollX(),
-                        player.y - getScrollY()); break;
+                case KeyEvent.VK_SEMICOLON: subscreen = new LookScreen(this,
+                        player, "Looking",
+                        player.x,
+                        player.y); break;
+                case KeyEvent.VK_T: subscreen = new ThrowScreen(this,
+                        player,
+                        player.x,
+                        player.y); break;
                 case KeyEvent.VK_F:
                     if (player.weapon() == null || player.weapon().rangedAttackValue() == 0)
                         player.notify("You don't have a ranged weapon equiped.");
                     else
-                        subscreen = new FireWeaponScreen(player,
-                                player.x - getScrollX(),
-                                player.y - getScrollY()); break;
+                        subscreen = new FireWeaponScreen(this,
+                                player,
+                                player.x,
+                                player.y); break;
             }
 
             switch (key.getKeyChar()){
@@ -188,8 +236,9 @@ public class PlayScreen implements Screen {
         if (player.level() > level)
             subscreen = new LevelUpScreen(player, player.level() - level);
 
-        if (subscreen == null)
+        if (subscreen == null){
             world.update();
+        }
 
         if (player.hp() < 1)
             return new LoseScreen();

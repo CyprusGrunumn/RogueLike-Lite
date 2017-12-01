@@ -2,6 +2,7 @@ package RogueLikeTut.screens;
 
 import RogueLikeTut.Creature;
 import RogueLikeTut.LevelUpController;
+import RogueLikeTut.spritePanel.SpritePanel;
 import asciiPanel.AsciiPanel;
 
 import java.awt.event.KeyEvent;
@@ -20,7 +21,7 @@ public class LevelUpScreen implements Screen {
     }
 
     @Override
-    public void displayOutput(AsciiPanel terminal){
+    public void displayOutput(SpritePanel terminal){
         List<String> options = controller.getLevelUpOptions();
 
         int y=5;
