@@ -11,6 +11,9 @@ public enum Tile {
     STAIRS_UP('<', AsciiPanel.white),
     UNKNOWN(' ', AsciiPanel.white);
 
+    private String details;
+    public String details(){ return details; }
+
     private char glyph;
     public char glyph() { return glyph; }
 

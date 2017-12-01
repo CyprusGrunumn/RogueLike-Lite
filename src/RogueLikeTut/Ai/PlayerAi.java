@@ -26,6 +26,8 @@ public class PlayerAi extends CreatureAi {
             creature.dig(x, y, z);
         }
     }
+    @Override
+    public void onGainLevel(){}
 
     public void onNotify(String message){
         messages.add(message);
@@ -33,5 +35,10 @@ public class PlayerAi extends CreatureAi {
 
     public boolean canSee(int wx, int wy, int wz) {
         return fov.isVisible(wx, wy, wz);
+    }
+
+    @Override
+    public Tile rememberedTile(int wx, int wy, int wz){
+        return fov.tile(wx, wy, wz);
     }
 }

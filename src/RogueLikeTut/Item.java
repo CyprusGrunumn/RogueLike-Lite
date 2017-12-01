@@ -29,13 +29,42 @@ public class Item {
     public void modifyFoodValue(int amount) { foodValue += amount; }
 
     private int attackValue;
+    public int attackValue() { return  attackValue; }
+    public void modifyAttackValue(int amount) { attackValue += amount; }
 
+    private int thrownAttackValue = 1;
+    public int thrownAttackValue() { return thrownAttackValue; }
+    public void modifyThrownAttackValue(int amount) { thrownAttackValue += amount; }
+
+    private int rangedAttackValue;
+    public int rangedAttackValue() { return rangedAttackValue; }
+    public void modifyRangedAttackValue(int amount) { rangedAttackValue +=amount; }
 
     private int defenseValue;
+    public int defenseValue() { return defenseValue; }
+    public void modifyDefenseValue(int amount) { defenseValue += amount; }
 
     public Item(char glyph, Color color, String name){
         this.glyph = glyph;
         this.color = color;
         this.name = name;
+    }
+
+    public String details() {
+        String details = "";
+
+        if (attackValue != 0)
+            details += "    attack:" + attackValue;
+
+        if(defenseValue != 0)
+            details += "    defense:" + defenseValue;
+
+        if (foodValue != 0)
+            details += "    food:" + foodValue;
+
+        if (thrownAttackValue != 0)
+            details += "    Thrown damage:" + thrownAttackValue;
+
+        return details;
     }
 }

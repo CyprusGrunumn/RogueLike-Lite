@@ -3,10 +3,7 @@ package RogueLikeTut;
 import java.awt.*;
 import java.util.List;
 
-import RogueLikeTut.Ai.BatAi;
-import RogueLikeTut.Ai.FungusAi;
-import RogueLikeTut.Ai.GoblinAi;
-import RogueLikeTut.Ai.PlayerAi;
+import RogueLikeTut.Ai.*;
 import asciiPanel.AsciiPanel;
 
 public class StuffFactory {
@@ -68,6 +65,13 @@ public class StuffFactory {
         return bat;
     }
 
+    public Creature newZombie(int depth, Creature player){
+        Creature zombie = new Creature(world, 'z', AsciiPanel.white, "zombie", 50, 10, 10);
+        world.addAtEmptyLocation(zombie, depth);
+        new ZombieAi(zombie, player);
+        return zombie;
+    }
+
   /*  public Creature newGoblin(int depth) {
         Creature goblin = new Creature (world,
                 Glyph.GOBLIN.glyph(), Glyph.GOBLIN.color(), Glyph.GOBLIN.toString(),
@@ -79,6 +83,7 @@ public class StuffFactory {
 */
     public Item newRock(int depth) {
         Item rock = new Item(Glyph.ROCK.glyph(), Glyph.ROCK.color(), Glyph.ROCK.toString());
+        rock.modifyThrownAttackValue(5);
         world.addAtEmptyLocation(rock, depth);
         return rock;
     }
@@ -102,5 +107,92 @@ public class StuffFactory {
         world.addAtEmptyLocation(item, depth);
         return item;
     }
+
+    public Item newDagger(int depth){
+        Item item = new Item('|', AsciiPanel.white, "dagger");
+        item.modifyAttackValue(5);
+        item.modifyThrownAttackValue(5);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+    public Item newSword(int depth){
+        Item item = new Item('|', AsciiPanel.brightWhite, "sword");
+        item.modifyAttackValue(10);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newStaff(int depth){
+        Item item = new Item('|', AsciiPanel.yellow, "staff");
+        item.modifyAttackValue(5);
+        item.modifyDefenseValue(3);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newLongBow(int depth){
+        Item item = new Item(')', AsciiPanel.yellow, "bow");
+        item.modifyAttackValue(1);
+        item.modifyRangedAttackValue(8);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newCrossBow(int depth){
+        Item item = new Item(')', AsciiPanel.green, "Crossbow");
+        item.modifyAttackValue(3);
+        item.modifyRangedAttackValue(10);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newLightArmor(int depth){
+        Item item = new Item('[', AsciiPanel.green, "Tunic");
+        item.modifyDefenseValue(2);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newMediumArmor(int depth){
+        Item item = new Item('[', AsciiPanel.white, "Chainmail");
+        item.modifyDefenseValue(4);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newHeavyArmor(int depth){
+        Item item = new Item('[', AsciiPanel.brightWhite, "Platemail");
+        item.modifyDefenseValue(6);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item randomWeapon(int depth){
+        switch ((int)(Math.random() * 4)){
+            case 0: return newDagger(depth);
+            case 1: return newSword(depth);
+            case 2: return newLongBow(depth);
+            default: return newStaff(depth);
+        }
+    }
+
+    public Item randomArmor(int depth){
+        switch ((int)(Math.random() * 3)){
+            case 0: return newLightArmor(depth);
+            case 1: return newMediumArmor(depth);
+            default: return newHeavyArmor(depth);
+        }
+    }
+    /*One advantage of having all our items be the same class but have different values is that an item can be more than one thing,
+    e.g. you could make an edible weapon and the player would be able to eat or wield it with no extra code or you could have
+    have a weapon that increases attack and defense.
+    public Item newEdibleWeapon(int depth){
+        Item item = new Item(')', AsciiPanel.yellow, "baguette");
+        item.modifyAttackValue(3);
+        item.modifyFoodValue(50);
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+    */
 
 }
