@@ -1,8 +1,9 @@
 package RogueLikeTut;
 
 import asciiPanel.AsciiPanel;
-
 import java.awt.Color;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Creature {
     private World world;
@@ -27,10 +28,11 @@ public class Creature {
     public int hp() { return hp; }
 
     private int regenHpCooldown;
-        private int regenHpPer1000 = 10;
+        private int regenHpPer1000;
         public void modifyRegenHpPer1000(int amount) { regenHpPer1000 += amount; }
 
     private int attackValue;
+    public void modifyAttackValue(int value) { attackValue += value; }
     public int attackValue() {
         return attackValue
                 + (weapon == null ? 0 : weapon.attackValue())
@@ -38,6 +40,7 @@ public class Creature {
     }
 
     private int defenseValue;
+    public void modifyDefenseValue(int value) { defenseValue += value; }
     public int defenseValue() {
         return defenseValue
                 + (weapon == null ? 0 : weapon.defenseValue())
@@ -45,6 +48,7 @@ public class Creature {
     }
 
     private int visionRadius;
+    public void modifyVisionRadius(int value) { visionRadius += value; }
     public int visionRadius() { return visionRadius; }
 
     private String name;
@@ -71,6 +75,9 @@ public class Creature {
     private int level = 1;
     public int level() { return level; }
 
+    private List<Effect> effects;
+    public List<Effect> effects() { return effects; }
+
     public Creature(World world, char glyph, Color color, String name,int maxHp, int attack, int defense){
         this.world = world;
         this.glyph = glyph;
@@ -84,6 +91,8 @@ public class Creature {
         this.inventory = new Inventory(20);
         this.maxFood = 1000;
         this.food = maxFood / 3 * 2;
+        this.regenHpPer1000 = 10;
+        this.effects = new ArrayList<Effect>();
     }
 
     public void doAction(String message, Object ... params){
@@ -136,10 +145,10 @@ public class Creature {
             meleeAttack(other);
     }
 
-    public void throwItem(Item item, int wx, int wy, int wz){
+    public void throwItem(Item item, int wx, int wy, int wz) {
         Point end = new Point(x, y, 0);
 
-        for(Point p : new Line(x, y, wx, wy)){
+        for (Point p : new Line(x, y, wx, wy)){
             if (!realTile(p.x, p.y, z).isGround())
                 break;
             end = p;
@@ -150,14 +159,16 @@ public class Creature {
 
         Creature c = creature(wx, wy, wz);
 
+
         if (c != null)
             throwAttack(item, c);
         else
             doAction("throw a %s", item.name());
 
-        unequip(item);
-        inventory.remove(item);
-        world.addAtEmptySpace(item, wx, wy, wz);
+        if (item.quaffEffect() != null && c != null)
+            getRidOf(item);
+        else
+            putAt(item, wx, wy, wz);
     }
 
     public void meleeAttack(Creature other){
@@ -166,6 +177,7 @@ public class Creature {
 
     private void throwAttack(Item item, Creature other) {
         commonAttack(other, attackValue / 2 + item.thrownAttackValue(), "throw a %s at the %s for %d damage", item.name(), other.name);
+        other.addEffect(item.quaffEffect());
     }
 
     public void rangedWeaponAttack(Creature other){
@@ -303,10 +315,25 @@ public class Creature {
 
     public void update(){
         regenerateHealth();
+        updateEffects();
         modifyFood(-1);
         ai.onUpdate();
         if(hp > maxHp)
             hp = maxHp;
+    }
+
+    private void updateEffects(){
+        List<Effect> done = new ArrayList<Effect>();
+
+        for (Effect effect : effects){
+            effect.update(this);
+            if (effect.isDone()) {
+                effect.end(this);
+                done.add(effect);
+            }
+        }
+
+        effects.removeAll(done);
     }
 
     public boolean canEnter(int wx, int wy, int wz) {
@@ -427,6 +454,29 @@ public class Creature {
             return world.item(wx, wy, wz);
         else
             return null;
+    }
+
+    public void quaff(Item item){
+        doAction("quaff a " + item.name());
+        consume(item);
+    }
+
+    private void consume(Item item){
+        if (item.foodValue() < 0)
+            notify("Gross!");
+
+        addEffect(item.quaffEffect());
+
+        modifyFood(item.foodValue());
+        getRidOf(item);
+    }
+
+    private void addEffect(Effect effect){
+        if (effect == null)
+            return;
+
+        effect.start(this);
+        effects.add(effect);
     }
 
     public void eat(Item item){
