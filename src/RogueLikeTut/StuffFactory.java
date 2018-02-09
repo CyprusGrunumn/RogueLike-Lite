@@ -40,13 +40,15 @@ public class StuffFactory {
         return zombie;
     }
 
-  /*  public Creature newGoblin(int depth) {
-        Creature goblin = new Creature (world, 'G', AsciiPanel.green, "Goblin", 25, 15, 5);
+    public Creature newGoblin(int depth, Creature player) {
+        Creature goblin = new Creature (world, 'g', AsciiPanel.brightGreen, "goblin", 66, 15, 5);
+        goblin.equip(randomWeapon(depth));
+        goblin.equip(randomArmor(depth));
         world.addAtEmptyLocation(goblin, depth);
-        new GoblinAi(goblin);
+        new GoblinAi(goblin, player);
         return goblin;
     }
-*/
+
     public Item newRock(int depth) {
         Item rock = new Item(',', AsciiPanel.yellow, "rock");
         rock.modifyThrownAttackValue(5);

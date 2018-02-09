@@ -226,7 +226,6 @@ public class Creature {
                 hp = maxHp;
         }
     }
-
     public void gainXp(Creature other){
         int amount = other.maxHp
                 + other.attackValue()
@@ -264,8 +263,17 @@ public class Creature {
 
     private void leaveCorpse(){
         Item corpse = new Item('%', color, name + " corpse");
-        corpse.modifyFoodValue(maxHp * 3);
+
+        if (corpse.name().equalsIgnoreCase("zombie corpse")){
+            corpse.modifyFoodValue(maxHp * -5);
+        }else
+        corpse.modifyFoodValue(maxHp * 2);
+
         world.addAtEmptySpace(corpse, x, y, z);
+        for(Item item : inventory.getItems()){
+            if (item != null)
+                drop(item);
+        }
     }
 
     public void dig(int wx, int wy, int wz) {
@@ -325,6 +333,14 @@ public class Creature {
     }
 
     public void equip(Item item) {
+        if(!inventory.contains(item)){
+            if(inventory.isFull()){
+                notify("Can't equip %s since you're holding too much stuff.", item.name());
+            } else
+                world.remove(item);
+                inventory.add(item);
+        }
+
         if (item.attackValue() == 0 && item.defenseValue() == 0)
             return;
 
@@ -395,6 +411,11 @@ public class Creature {
         if (item.foodValue() < 0)
             notify("Gross!");
 
+        if (item.name().contains("zombie")) {
+            notify("You feel Ill!");
+            maxHp = maxHp / 2;
+            hp = hp / 2;
+        }
         modifyFood(item.foodValue());
         inventory.remove(item);
         unequip(item);

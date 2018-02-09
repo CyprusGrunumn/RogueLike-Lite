@@ -46,8 +46,11 @@ public class PlayScreen implements Screen {
             for (int i = 0; i < 10; i++) {
                 factory.newBat(z);
             }
-            for (int i = 0; i < 3; i++){
+            for (int i = 0; i < 5; i++){
                 factory.newZombie(z, player);
+            }
+            for (int i = 0; i < 5; i++){
+                factory.newGoblin(z, player);
             }
         }
     }
@@ -57,19 +60,23 @@ public class PlayScreen implements Screen {
             for (int i = 0; i < world.width() * world.height() / 20; i++) {
                 factory.newRock(z);
             }
-            for (int i = 0; i < 3; i++){
+            for (int i = 0; i < 5; i++){
                 factory.newBread(z);
                 factory.newFruit(z);
+            }
+            for (int i = 0; i < ((int)(3*Math.random())); i++) {
                 factory.newDagger(z);
-                factory.newSword(z);
+            }
+            for (int i = 0; i < ((int)(2*Math.random())); i++) {
                 factory.newStaff(z);
-                factory.newLongBow(z);
                 factory.newCrossBow(z);
                 factory.newLightArmor(z);
                 factory.newMediumArmor(z);
+            }
+            for (int i = 0; i < ((int)(5*Math.random())); i++) {
+                factory.newSword(z);
+                factory.newCrossBow(z);
                 factory.newHeavyArmor(z);
-                factory.randomArmor(z);
-                factory.randomWeapon(z);
             }
         }
         factory.newVictoryItem(world.depth() - 1);
