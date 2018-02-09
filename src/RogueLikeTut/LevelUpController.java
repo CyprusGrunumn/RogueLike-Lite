@@ -17,6 +17,9 @@ public class LevelUpController {
             },
             new LevelUpOption("Increased vision") {
                 public void invoke(Creature creature) { creature.gainVision(); }
+            },
+            new LevelUpOption("Increased Regeneration") {
+                public void invoke(Creature creature) { creature.gainRegen(); }
             }
     };
 

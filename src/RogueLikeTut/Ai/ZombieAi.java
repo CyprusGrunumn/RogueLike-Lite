@@ -23,5 +23,5 @@ public class ZombieAi extends CreatureAi{
         else
             wander();
     }
-    
+
 }

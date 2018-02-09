@@ -76,6 +76,7 @@ public class StuffFactory {
         return item;
     }
 
+
     public Item newDagger(int depth){
         Item item = new Item('|', AsciiPanel.white, "dagger");
         item.modifyAttackValue(5);

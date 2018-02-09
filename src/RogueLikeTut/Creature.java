@@ -26,6 +26,10 @@ public class Creature {
     private int hp;
     public int hp() { return hp; }
 
+    private int regenHpCooldown;
+        private int regenHpPer1000 = 10;
+        public void modifyRegenHpPer1000(int amount) { regenHpPer1000 += amount; }
+
     private int attackValue;
     public int attackValue() {
         return attackValue
@@ -226,6 +230,16 @@ public class Creature {
                 hp = maxHp;
         }
     }
+
+    private void regenerateHealth(){
+        regenHpCooldown -= regenHpPer1000;
+        if(regenHpCooldown < 0 && food > 300){
+            modifyHp(regenHpPer1000);
+            modifyFood(-1);
+            regenHpCooldown += 1000;
+        }
+    }
+
     public void gainXp(Creature other){
         int amount = other.maxHp
                 + other.attackValue()
@@ -257,6 +271,11 @@ public class Creature {
         doAction("Look More Aware");
     }
 
+    public void gainRegen(){
+        regenHpPer1000 += 5;
+        doAction("Heal Quicker");
+    }
+
     public boolean isPlayer(){
         return glyph == '@';
     }
@@ -283,8 +302,11 @@ public class Creature {
     }
 
     public void update(){
+        regenerateHealth();
         modifyFood(-1);
         ai.onUpdate();
+        if(hp > maxHp)
+            hp = maxHp;
     }
 
     public boolean canEnter(int wx, int wy, int wz) {
@@ -416,6 +438,7 @@ public class Creature {
             maxHp = maxHp / 2;
             hp = hp / 2;
         }
+
         modifyFood(item.foodValue());
         inventory.remove(item);
         unequip(item);
