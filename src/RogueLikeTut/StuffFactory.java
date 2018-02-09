@@ -1,7 +1,6 @@
 package RogueLikeTut;
 
 import java.util.List;
-
 import RogueLikeTut.Ai.*;
 import asciiPanel.AsciiPanel;
 
@@ -152,6 +151,67 @@ public class StuffFactory {
             default: return newHeavyArmor(depth);
         }
     }
+
+    public Item newPotionOfHealth(int depth){
+        Item item = new Item('!', AsciiPanel.brightRed, "health potion");
+        item.setQuaffEffect(new Effect(1){
+            public void start(Creature creature){
+                if (creature.hp() == creature.maxHp())
+                    return;
+
+                creature.modifyHp(25);
+                creature.doAction("look healthier");
+            }
+        });
+
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newPotionOfPoison(int depth){
+        Item item = new Item('!', AsciiPanel.green, "poison potion");
+        item.setQuaffEffect(new Effect(20){
+            public void start(Creature creature){
+                creature.doAction("look sick");
+            }
+
+            public void update(Creature creature){
+                super.update(creature);
+                creature.modifyHp(-2);
+            }
+        });
+
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newPotionOfWarrior(int depth){
+        Item item = new Item('!', AsciiPanel.white, "warrior's potion");
+        item.setQuaffEffect(new Effect(20){
+            public void start(Creature creature){
+                creature.modifyAttackValue(10);
+                creature.modifyDefenseValue(10);
+                creature.doAction("look stronger");
+            }
+            public void end(Creature creature){
+                creature.modifyAttackValue(-10);
+                creature.modifyDefenseValue(-10);
+                creature.doAction("look less strong");
+            }
+        });
+
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item randomPotion(int depth){
+        switch ((int)(Math.random() * 3)){
+            case 0: return newPotionOfHealth(depth);
+            case 1: return newPotionOfPoison(depth);
+            default: return newPotionOfWarrior(depth);
+        }
+    }
+
     /*One advantage of having all our items be the same class but have different values is that an item can be more than one thing,
     e.g. you could make an edible weapon and the player would be able to eat or wield it with no extra code or you could have
     have a weapon that increases attack and defense.
