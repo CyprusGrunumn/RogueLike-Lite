@@ -15,10 +15,10 @@ import RogueLikeTut.screens.StartScreen;
 public class ApplicationMain extends JFrame implements KeyListener {
     private static final long serialVersionUID = -4978082929122180476L;
 
-    private static int charWidth = 40;
-    private static int charHeight = 22;
+    private static int charWidth = 80;
+    private static int charHeight = 24;
 
-    private static int scale = 2;
+    private static int scale = 1;
 
     private SpritePanel terminal;
 
@@ -46,7 +46,7 @@ public class ApplicationMain extends JFrame implements KeyListener {
 
         if (terminal.getWidthInCharacters() != charWidth || terminal.getHeightInCharacters() != charHeight) {
             remove(terminal);
-            terminal = new SpritePanel(charWidth, charHeight, 2, library);
+            terminal = new SpritePanel(charWidth, charHeight, terminal.getScale(), library);
             add(terminal);
 
             validate();

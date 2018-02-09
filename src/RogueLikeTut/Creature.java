@@ -27,10 +27,18 @@ public class Creature {
     public int hp() { return hp; }
 
     private int attackValue;
-    public int attackValue() { return attackValue; }
+    public int attackValue() {
+        return attackValue
+                + (weapon == null ? 0 : weapon.attackValue())
+                + (armor == null ? 0 : armor.attackValue());
+    }
 
     private int defenseValue;
-    public int defenseValue() { return defenseValue; }
+    public int defenseValue() {
+        return defenseValue
+                + (weapon == null ? 0 : weapon.defenseValue())
+                + (armor == null ? 0 : armor.defenseValue());
+    }
 
     private int visionRadius;
     public int visionRadius() { return visionRadius; }
@@ -46,6 +54,18 @@ public class Creature {
 
     private int food;
     public int food() { return food; }
+
+    private Item weapon;
+    public Item weapon() { return  weapon; }
+
+    private Item armor;
+    public Item armor() { return armor; }
+
+    private int xp;
+    public int xp() { return  xp; }
+
+    private int level = 1;
+    public int level() { return level; }
 
     public Creature(World world, char glyph, Color color, String name,int maxHp, int attack, int defense){
         this.world = world;
@@ -109,20 +129,64 @@ public class Creature {
         if (other == null)
             ai.onEnter(x+mx, y+my, z+mz, tile);
         else
-            attack(other);
+            meleeAttack(other);
     }
 
-    public void attack(Creature other){
+    public void throwItem(Item item, int wx, int wy, int wz){
+        Point end = new Point(x, y, 0);
 
-        int amount = Math.max(0, attackValue() - other.defenseValue());
+        for(Point p : new Line(x, y, wx, wy)){
+            if (!realTile(p.x, p.y, z).isGround())
+                break;
+            end = p;
+        }
+
+        wx = end.x;
+        wy = end.y;
+
+        Creature c = creature(wx, wy, wz);
+
+        if (c != null)
+            throwAttack(item, c);
+        else
+            doAction("throw a %s", item.name());
+
+        unequip(item);
+        inventory.remove(item);
+        world.addAtEmptySpace(item, wx, wy, wz);
+    }
+
+    public void meleeAttack(Creature other){
+        commonAttack(other, attackValue(), "attack the %s for %d damage", other.name);
+    }
+
+    private void throwAttack(Item item, Creature other) {
+        commonAttack(other, attackValue / 2 + item.thrownAttackValue(), "throw a %s at the %s for %d damage", item.name(), other.name);
+    }
+
+    public void rangedWeaponAttack(Creature other){
+        commonAttack(other, attackValue / 2 + weapon.rangedAttackValue(), "fire a %s at the %s for %d damage", weapon.name(), other.name);
+    }
+
+    private void commonAttack(Creature other, int attack, String action, Object ... params) {
+        modifyFood(-2);
+
+        int amount = Math.max(0, attack - other.defenseValue());
 
         amount = (int)(Math.random() * amount) + 1;
 
-        doAction("attack the '%s' for %d damage", other.name, amount);
+        Object[] params2 = new Object[params.length+1];
+        for (int i = 0; i < params.length; i++){
+            params2[i] = params[i];
+        }
+        params2[params2.length - 1] = amount;
+
+        doAction(action, params2);
 
         other.modifyHp(-amount);
 
-        modifyFood(-5);
+        if (other.hp < 1)
+            gainXp(other);
     }
 
     public void modifyHp(int amount) {
@@ -148,13 +212,59 @@ public class Creature {
         }
     }
 
+    public void modifyXp(int amount){
+        xp += amount;
+
+        notify("You %s %d xp.", amount < 0 ? "lose" : "gain", amount);
+
+        while (xp > (int)(Math.pow(level, 1.5) * 20)) {
+            level++;
+            doAction("advance to level %d", level);
+            ai.onGainLevel();
+            modifyHp(level * 2);
+            if(hp > maxHp)
+                hp = maxHp;
+        }
+    }
+
+    public void gainXp(Creature other){
+        int amount = other.maxHp
+                + other.attackValue()
+                + other.defenseValue()
+                - level * 2;
+
+        if (amount > 0)
+            modifyXp(amount);
+    }
+
+    public void gainMaxHp(){
+        maxHp += 10;
+        hp += 10;
+        doAction("Look Healthier");
+    }
+
+    public void gainAttackValue(){
+        attackValue += 2;
+        doAction("Look Stronger");
+    }
+
+    public void gainDefenseValue(){
+        defenseValue += 2;
+        doAction("Look Tougher");
+    }
+
+    public void gainVision(){
+        visionRadius += 1;
+        doAction("Look More Aware");
+    }
+
     public boolean isPlayer(){
         return glyph == '@';
     }
 
     private void leaveCorpse(){
         Item corpse = new Item('%', color, name + " corpse");
-        corpse.modifyFoodValue(maxHp);
+        corpse.modifyFoodValue(maxHp * 3);
         world.addAtEmptySpace(corpse, x, y, z);
     }
 
@@ -202,24 +312,84 @@ public class Creature {
         }
     }
 
+    public void unequip(Item item){
+        if (item == null)
+            return;
+        if (item == armor) {
+            doAction("remove a " + item.name());
+            armor = null;
+        }else if (item== weapon) {
+            doAction("put away the " + item.name());
+        weapon=null;
+        }
+    }
+
+    public void equip(Item item) {
+        if (item.attackValue() == 0 && item.defenseValue() == 0)
+            return;
+
+        if(item.attackValue() >= item.defenseValue()) {
+            unequip(weapon);
+            doAction("Wield the " + item.name());
+            weapon = item;
+        }else {
+            unequip(armor);
+            doAction("put on the " + item.name());
+            armor = item;
+        }
+    }
+
     public void drop(Item item){
         if (world.addAtEmptySpace(item, x, y, z)){
             doAction("drop a " + item.name());
             inventory.remove(item);
+            unequip(item);
         } else {
             notify("There's nowhere to drop the %s.", item.name());
         }
     }
 
+    private void getRidOf(Item item){
+        inventory.remove(item);
+        unequip(item);
+    }
+
+    private void putAt(Item item, int wx, int wy, int wz){
+        inventory.remove(item);
+        unequip(item);
+        world.addAtEmptySpace(item, wx, wy, wz);
+    }
+
+
     public boolean canSee(int wx, int wy, int wz){
         return ai.canSee(wx, wy, wz);
     }
 
-    public Tile tile(int wx, int wy, int wz) {
+    public Tile realTile(int wx, int wy, int wz) {
         return world.tile(wx, wy, wz);
     }
 
-    public Creature creature(int wx, int wy, int wz){ return world.creature(wx, wy, wz); }
+    public Tile tile(int wx, int wy, int wz){
+        if (canSee(wx, wy, wz))
+            return world.tile(wx, wy, wz);
+        else
+            return ai.rememberedTile(wx, wy, wz);
+    }
+
+
+    public Creature creature(int wx, int wy, int wz){
+        if (canSee(wx, wy, wz))
+            return world.creature(wx, wy, wz);
+        else
+            return null;
+    }
+
+    public Item item(int wx, int wy, int wz) {
+        if (canSee(wx, wy, wz))
+            return world.item(wx, wy, wz);
+        else
+            return null;
+    }
 
     public void eat(Item item){
         if (item.foodValue() < 0)
@@ -227,5 +397,11 @@ public class Creature {
 
         modifyFood(item.foodValue());
         inventory.remove(item);
+        unequip(item);
     }
+
+    public String details() {
+        return String.format("  level:%d  attack:%d  defense:%d  hp:%d", level, attackValue(), defenseValue(), hp);
+    }
+
 }
