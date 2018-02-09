@@ -28,6 +28,10 @@ public class Item {
     public int foodValue() { return foodValue; }
     public void modifyFoodValue(int amount) { foodValue += amount; }
 
+    private Effect quaffEffect;
+    public Effect quaffEffect() { return quaffEffect; }
+    public void setQuaffEffect(Effect effect) { this.quaffEffect = effect; }
+
     private int attackValue;
     public int attackValue() { return  attackValue; }
     public void modifyAttackValue(int amount) { attackValue += amount; }
@@ -67,4 +71,5 @@ public class Item {
 
         return details;
     }
+
 }

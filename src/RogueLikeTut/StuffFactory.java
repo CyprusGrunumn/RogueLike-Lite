@@ -13,7 +13,7 @@ public class StuffFactory {
         PLAYER('@', AsciiPanel.brightWhite),
         FUNGUS('f', AsciiPanel.green),
         BAT('b', AsciiPanel.yellow),
-        //GOBLIN('G', AsciiPanel.green),
+        GOBLIN('g', AsciiPanel.brightGreen),
         ROCK(',', AsciiPanel.yellow),
         TEDDY_BEAR('*', AsciiPanel.brightWhite),
         BREAD('%', AsciiPanel.yellow),
@@ -72,15 +72,15 @@ public class StuffFactory {
         return zombie;
     }
 
-  /*  public Creature newGoblin(int depth) {
-        Creature goblin = new Creature (world,
-                Glyph.GOBLIN.glyph(), Glyph.GOBLIN.color(), Glyph.GOBLIN.toString(),
-                25, 15, 5);
+    public Creature newGoblin(int depth, Creature player) {
+        Creature goblin = new Creature (world, 'g', AsciiPanel.brightGreen, "goblin", 66, 15, 5);
+        goblin.equip(randomWeapon(depth));
+        goblin.equip(randomArmor(depth));
         world.addAtEmptyLocation(goblin, depth);
-        new GoblinAi(goblin);
+        new GoblinAi(goblin, player);
         return goblin;
     }
-*/
+
     public Item newRock(int depth) {
         Item rock = new Item(Glyph.ROCK.glyph(), Glyph.ROCK.color(), Glyph.ROCK.toString());
         rock.modifyThrownAttackValue(5);
@@ -183,6 +183,67 @@ public class StuffFactory {
             default: return newHeavyArmor(depth);
         }
     }
+
+    public Item newPotionOfHealth(int depth){
+        Item item = new Item('!', AsciiPanel.brightRed, "health potion");
+        item.setQuaffEffect(new Effect(1){
+            public void start(Creature creature){
+                if (creature.hp() == creature.maxHp())
+                    return;
+
+                creature.modifyHp(25);
+                creature.doAction("look healthier");
+            }
+        });
+
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newPotionOfPoison(int depth){
+        Item item = new Item('!', AsciiPanel.green, "poison potion");
+        item.setQuaffEffect(new Effect(20){
+            public void start(Creature creature){
+                creature.doAction("look sick");
+            }
+
+            public void update(Creature creature){
+                super.update(creature);
+                creature.modifyHp(-2);
+            }
+        });
+
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item newPotionOfWarrior(int depth){
+        Item item = new Item('!', AsciiPanel.white, "warrior's potion");
+        item.setQuaffEffect(new Effect(20){
+            public void start(Creature creature){
+                creature.modifyAttackValue(10);
+                creature.modifyDefenseValue(10);
+                creature.doAction("look stronger");
+            }
+            public void end(Creature creature){
+                creature.modifyAttackValue(-10);
+                creature.modifyDefenseValue(-10);
+                creature.doAction("look less strong");
+            }
+        });
+
+        world.addAtEmptyLocation(item, depth);
+        return item;
+    }
+
+    public Item randomPotion(int depth){
+        switch ((int)(Math.random() * 3)){
+            case 0: return newPotionOfHealth(depth);
+            case 1: return newPotionOfPoison(depth);
+            default: return newPotionOfWarrior(depth);
+        }
+    }
+
     /*One advantage of having all our items be the same class but have different values is that an item can be more than one thing,
     e.g. you could make an edible weapon and the player would be able to eat or wield it with no extra code or you could have
     have a weapon that increases attack and defense.
