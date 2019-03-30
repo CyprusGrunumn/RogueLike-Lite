@@ -2,6 +2,7 @@ package RogueLikeTut;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class LevelUpController {
 
@@ -20,6 +21,12 @@ public class LevelUpController {
             },
             new LevelUpOption("Increased Regeneration") {
                 public void invoke(Creature creature) { creature.gainRegen(); }
+            },
+            new LevelUpOption("Increased mana") {
+                public void invoke(Creature creature) { creature.gainMaxMana(); }
+            },
+            new LevelUpOption("Increased mana regeneration") {
+                public void invoke(Creature creature) { creature.gainRegenMana(); }
             }
     };
 

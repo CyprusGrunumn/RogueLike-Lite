@@ -81,3 +81,10 @@ public abstract class InventoryBasedScreen implements Screen {
         }
     }
 }
+
+
+/*
+I would love to change how the UI Looks
+something Akin to the main UI in Dwarf Fortress
+this will be an ongoing update of course
+ */

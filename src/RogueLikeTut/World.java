@@ -161,4 +161,8 @@ public class World {
         }
         return false;
     }
+
+    public void add(Creature other)  {
+        creatures.add(other);
+    }
 }

@@ -51,6 +51,29 @@ public class Creature {
     public void modifyVisionRadius(int value) { visionRadius += value; }
     public int visionRadius() { return visionRadius; }
 
+    private int maxMana;
+    public int maxMana() { return maxMana; }
+
+    private int mana;
+    public int mana() { return mana; }
+    public void modifyMana(int amount) { mana = Math.max(0, Math.min(mana + amount, maxMana)); }
+
+    private int regenManaCooldown;
+    private int regenManaPer1000;
+    public void modifyRegenManaPer1000(int amount) { regenManaPer1000 += amount; }
+    private void regenerateMana(){
+        regenManaCooldown -= regenManaPer1000;
+        if (regenManaCooldown < 0){
+            if (mana < maxMana)
+            modifyMana(1);
+            modifyFood(-1);
+        }
+        regenManaCooldown += 1000;
+    }
+
+    private int detectCreatures;
+    public void modifyDetectCreatures(int amount) { detectCreatures += amount; }
+
     private String name;
     public String name() { return name; }
 
@@ -87,12 +110,15 @@ public class Creature {
         this.attackValue = attack;
         this.defenseValue = defense;
         this.visionRadius = 9;
+        this.maxMana = 100;
+        this.mana = maxMana;
         this.name = name;
         this.inventory = new Inventory(20);
         this.maxFood = 1000;
         this.food = maxFood / 3 * 2;
         this.regenHpPer1000 = 10;
         this.effects = new ArrayList<Effect>();
+        this.regenManaPer1000 = regenHpPer1000;
     }
 
     public void doAction(String message, Object ... params){
@@ -205,6 +231,21 @@ public class Creature {
             gainXp(other);
     }
 
+    public void castSpell(Spell spell, int x2, int y2) {
+        Creature other = creature(x2, y2, z);
+
+        if(spell.manaCost() > mana){
+            doAction("Point and mumble, but nothing happens");
+            return;
+        } else if (other == null) {
+            doAction("point and mumble at nothing");
+            return;
+        }
+
+        other.addEffect(spell.effect());
+        modifyMana(-spell.manaCost());
+    }
+
     public void modifyHp(int amount) {
         hp += amount;
 
@@ -221,7 +262,7 @@ public class Creature {
         if (food > maxFood) {
             maxFood = (maxFood + food) / 2;
             food = maxFood;
-            notify("You can't belive your stomach can hold that much!");
+            notify("You can't believe your stomach can hold that much!");
             modifyHp(-5);
         } else if (food < 1 && isPlayer()) {
             modifyHp(-maxHp);
@@ -288,6 +329,17 @@ public class Creature {
         doAction("Heal Quicker");
     }
 
+    public void gainMaxMana(){
+        maxMana += 5;
+        mana += 5;
+        doAction("Look More Magical");
+    }
+
+    public void gainRegenMana(){
+        regenManaPer1000 =+ 5;
+        doAction("Look a little less tired");
+    }
+
     public boolean isPlayer(){
         return glyph == '@';
     }
@@ -313,8 +365,14 @@ public class Creature {
         doAction("dig");
     }
 
+    public void summon(Creature other){
+        world.add(other);
+    }
+
+
     public void update(){
         regenerateHealth();
+        regenerateMana();
         updateEffects();
         modifyFood(-1);
         ai.onUpdate();
@@ -427,7 +485,8 @@ public class Creature {
 
 
     public boolean canSee(int wx, int wy, int wz){
-        return ai.canSee(wx, wy, wz);
+        return (detectCreatures > 0 && world.creature(wx, wy, wz) != null
+                || ai.canSee(wx, wy, wz));
     }
 
     public Tile realTile(int wx, int wy, int wz) {

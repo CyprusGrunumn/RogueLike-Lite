@@ -65,6 +65,7 @@ public class PlayScreen implements Screen {
                 factory.newFruit(z);
                 factory.newPotionOfPoison(z);
                 factory.newPotionOfHealth(z);
+                factory.newPotionOfMana(z);
             }
             for (int i = 0; i < ((int)(3*Math.random())); i++) {
                 factory.newDagger(z);
@@ -75,6 +76,8 @@ public class PlayScreen implements Screen {
                 factory.newCrossBow(z);
                 factory.newLightArmor(z);
                 factory.newMediumArmor(z);
+                factory.newWhiteMagesSpellbook(z);
+                factory.newBlueMagesSpellbook(z);
             }
             for (int i = 0; i < ((int)(5*Math.random())); i++) {
                 factory.newSword(z);
@@ -101,7 +104,7 @@ public class PlayScreen implements Screen {
         displayTiles(terminal, left, top);
         displayMessages(terminal, messages);
 
-        String stats = String.format(" %3d/%3d hp %8s Attack %4s Defense %4s Level %2s", player.hp(), player.maxHp(), hunger(), player.attackValue(), player.defenseValue(), player.level());
+        String stats = String.format(" %3d/%3d hp   %d/%d mana   %8s", player.hp(), player.maxHp(), player.mana(), player.maxMana(), hunger());
         terminal.write(stats, 1, 23);
 
         if (subscreen != null)
@@ -171,6 +174,9 @@ public class PlayScreen implements Screen {
                         player.x - getScrollX(),
                         player.y - getScrollY()); break;
                 case KeyEvent.VK_T: subscreen = new ThrowScreen(player,
+                        player.x - getScrollX(),
+                        player.y - getScrollY()); break;
+                case KeyEvent.VK_R: subscreen = new ReadScreen(player,
                         player.x - getScrollX(),
                         player.y - getScrollY()); break;
                 case KeyEvent.VK_F:

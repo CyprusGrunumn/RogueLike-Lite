@@ -11,6 +11,8 @@ container, or being carried.
 package RogueLikeTut;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Item {
 
@@ -48,10 +50,18 @@ public class Item {
     public int defenseValue() { return defenseValue; }
     public void modifyDefenseValue(int amount) { defenseValue += amount; }
 
+    private List<Spell> writtenSpells;
+    public List<Spell> writtenSpells() { return writtenSpells; }
+
+    public void addWrittenSpell(String name, int manaCost, Effect effect, boolean requiresTarget){
+        writtenSpells.add(new Spell(name, manaCost, effect, requiresTarget));
+    }
+
     public Item(char glyph, Color color, String name){
         this.glyph = glyph;
         this.color = color;
         this.name = name;
+        this.writtenSpells = new ArrayList<Spell>();
     }
 
     public String details() {
